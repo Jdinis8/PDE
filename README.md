@@ -2,11 +2,11 @@
 
 ## Folders in Your Computer
 To run this code, you have to make sure you have the following folders in the place where you are going to clone this repository to:
-    *  main
-    *  lib
-    *  src
-    *  bin
-    *  soundtrack
+*  main
+*  lib
+*  src
+*  bin
+*  soundtrack
 
 ## How to Run
 You can open the Makefile to inspect what it has there, but the simple steps to run any file you want are the following:
