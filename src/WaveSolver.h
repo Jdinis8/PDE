@@ -6,17 +6,18 @@
 
 class WaveSolver{
     public:
-        WaveSolver(double* input_data, int size_data, int it0, int itf, double speed);
+        WaveSolver();
         ~WaveSolver() = default;
 
-        std::vector<std::vector<double>> CenteredDiff(double space_step, double time_step);
-        std::vector<std::vector<double>> BackwardDiff(double space_step, double time_step);
-        std::vector<std::vector<double>> ForwardDiff (double space_step, double time_step);
+        //Time Methods
+        void TimeSimpleDiff1(double** data, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS); // we assume data[i][j] means ith step of time, jth step of space
+        void TimeCenteredDiff2(double **data, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS);
 
-    private:
-        std::vector<double> initial_data;
-        int size_data, t0, tf;
-        double c;
+        //Periodic Spatial Methods
+        std::vector<double> PFirstDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
+        std::vector<double> PSecondDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
+
+        std::vector<double> RK4(double **data, int size_t, int size_x, double space_step, double time_step);
 };
 
 #endif
