@@ -15,14 +15,14 @@ You can open the Makefile to inspect what it has there, but the simple steps to 
 * ```make name_of_file.exe```
 * ```./bin/name_of_file.exe```
 
-Two important things: The file you want to run must be on the folder called 'main' and, assuming the name of the file is for example "test.cpp", when calling make, you should type only "make test.exe".
+Two important things: The file you want to run must be on the folder called _main_ and, assuming the name of the file is for example __test.cpp__, when calling make, you should type only __make test.exe__.
 
 ## How to Clean
 
-The object files (.o) are eliminated automatically from the moment you have the executables (.exe) running. To erase these, just type
+The object files (_.o_) are eliminated automatically from the moment you have the executables (_.exe_) running. To erase these, just type
 * ```make clean```
 
-This will also clean the lib which is composed of all the files you have in the 'src' folder. Don't worry about this, they are going to be all compiled again when you call "make name_of_file.exe" automatically.
+This will also clean the lib which is composed of all the files you have in the _src_ folder. Don't worry about this, they are going to be all compiled again when you call "make name_of_file.exe" automatically.
 
-This command also cleans the terminal by calling the bash file "Cleaner", so do not worry about the terminal clearing without any apparent reason.
+This command also cleans the terminal by calling the bash file _Cleaner_, so do not worry about the terminal clearing without any apparent reason.
 
