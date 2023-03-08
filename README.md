@@ -20,7 +20,7 @@ Two important things: The file you want to run must be on the folder called 'mai
 ## How to Clean
 
 The object files (.o) are eliminated automatically from the moment you have the executables (.exe) running. To erase these, just type
-    ```make clean```
+* ```make clean```
 
 This will also clean the lib which is composed of all the files you have in the 'src' folder. Don't worry about this, they are going to be all compiled again when you call "make name_of_file.exe" automatically.
 
