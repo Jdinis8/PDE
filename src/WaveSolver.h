@@ -15,7 +15,13 @@ class WaveSolver{
 
         //Periodic Spatial Methods
         std::vector<double> PFirstDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
+        std::vector<double> PFirstDerSpaceCenteredDiff4(double **data, int size_t, int size_x, double space_step);
         std::vector<double> PSecondDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
+        
+
+        //Non-Periodic Spatial Methods
+        std::vector<double> FirstDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
+        std::vector<double> SecondDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
 
         std::vector<double> RK4(double **data, int size_t, int size_x, double space_step, double time_step);
 };
