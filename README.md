@@ -7,6 +7,7 @@ To run this code, you have to make sure you have the following folders in the pl
 *  _src_
 *  _bin_
 *  _soundtrack_
+*  _python_
 
 ## How to Run
 You can open the Makefile to inspect what it has there, but the simple steps to run any file you want are the following:

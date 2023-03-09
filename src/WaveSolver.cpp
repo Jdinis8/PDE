@@ -63,6 +63,10 @@ void WaveSolver::TimeCenteredDiff2(double **data, int size_t, int size_x, double
     delete[] dummy;
 }
 
+void WaveSolver::SpecificRK4(double **data, int size_t, int size_x, double space_step, double time_step){
+
+}
+
 /////////////////////////
 /////////////////////////
 /////////////////////////
