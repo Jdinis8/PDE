@@ -17,22 +17,33 @@ size_t = 0
 size_x = 0
 space_step = 0
 time_step = 0
-evolution = [[]]
+evolution = []
 
 with open(filename) as f:
 
   for line in f:
     ##first line of .txt has width, length, nvar and tilesize
     if(ctr == 0):
-      size_t = float(line.split()[0])
-      size_x = float(line.split()[1])
+      size_t = int(line.split()[0])
+      size_x = int(line.split()[1])
       space_step = float(line.split()[2])
       time_step = float(line.split()[3])
+      ctr += 1
     else:
       dumb = []
       for x in line.split():
         dumb.append(float(x))
       evolution.append(dumb)
-    ctr += 1
 
-#now we have everything stored
+#now we have everything from the output.txt stored
+
+#here we shall create the array for the discretization in x
+x = []
+
+for i in range(size_x):
+  x.append(i*space_step)
+
+for i in range(size_t):
+  plt.scatter(x, evolution[i], marker = "o", s=10)
+  plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + str(i*time_step) + '.png', dpi = my_dpi)
+  plt.close()

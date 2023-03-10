@@ -74,6 +74,7 @@ exe:
 py:
 	@echo Preparing some visualization
 	python3 python/graphicmaker.py
+	python3 python/gifmaker.py
 
 ################## clean #########################
 

@@ -36,5 +36,5 @@ it will create graphics of the data given in the __output.txt__ file, this one i
 
 ## FAQ
 
-In the python file __graphicmaker.py__, the _filename_ variable points to the place where the __output.txt__ file should be. You must adapt this to the folder where you are going to have this repository.
+In the python (inside the python folder) file __graphicmaker.py__, the _filename_ variable points to the place where the __output.txt__ file should be. You must adapt this to the folder where you are going to have this repository. This must be done in the file __gifmaker.py__ as well, when declaring the variables _imgs_ and when saving the video file in the command __clip.write_videofile__.
 
