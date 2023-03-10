@@ -23,7 +23,7 @@ ROOTINC := $(shell root-config --incdir)
 
 SRC := $(wildcard src/*.cpp) $(wildcard src/*.C)
 OBJ := $(patsubst %.cpp, $(BINDIR)/%.o, $(notdir $(SRC))) $(patsubst %.C, $(BINDIR)/%.o, $(notdir $(SRC)))
-PYOBJ := $(wildcard Generated/Python/*)
+PYOBJ := $(wildcard graphics/*)
 INC := $(wildcard src/*.h)
 
 lib: $(LIBDIR)/libFT.a
@@ -71,6 +71,10 @@ exe:
 	make rui; \
 	$$executavel
 
+py:
+	@echo Preparing some visualization
+	python3 python/graphicmaker.py
+
 ################## clean #########################
 
 tilde := $(wildcard */*~) $(wildcard *~)
@@ -82,3 +86,11 @@ clean:
 	rm -f $(exe) $(obj) $(tilde) $(generated)
 	rm -f $(LIBDIR)/libFT.a
 	./Cleaner
+
+cclean:
+	@echo Major Cleaning
+	rm -f $(exe) $(obj) $(tilde) $(generated)
+	rm -f $(LIBDIR)/libFT.a
+	rm -f $(PYOBJ)
+	./Cleaner
+

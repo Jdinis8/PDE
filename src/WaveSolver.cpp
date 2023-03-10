@@ -14,14 +14,13 @@ WaveSolver::WaveSolver(){
 ////////////////////////
 ////////////////////////
 
-void WaveSolver::TimeSimpleDiff1(double** data, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS){
+void WaveSolver::TimeSimpleDiff1(double**& data, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
     
     double** new_data = new double* [size_t+1];
     double** dummy = data;
-
 
     for (int i = 0; i < size_t+1; i++) new_data[i] = new double[size_x];
     
@@ -30,15 +29,15 @@ void WaveSolver::TimeSimpleDiff1(double** data, int size_t, int size_x, double s
             new_data[i][j] = data[i][j];
 
     for (int j = 0; j < size_x; j++)
-        new_data[size_t+1][j] = new_data[size_t][j] + time_step*RHS[j];
+        new_data[size_t][j] = new_data[size_t-1][j] + time_step*RHS[j];
 
-    //Replacing data with the updated data, erasing the old array
     data = new_data;
+    //Replacing data with the updated data, erasing the old array
     for(int i = 0; i < size_t; i++) delete[] dummy[i];
     delete[] dummy;
 }
 
-void WaveSolver::TimeCenteredDiff2(double **data, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS){
+void WaveSolver::TimeCenteredDiff2(double**& data, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -54,17 +53,20 @@ void WaveSolver::TimeCenteredDiff2(double **data, int size_t, int size_x, double
             new_data[i][j] = data[i][j];
 
     for (int j = 0; j < size_x; j++)
-        new_data[size_t + 1][j] = new_data[size_t-1][j] + 2*time_step * RHS[j];
+        new_data[size_t][j] = new_data[size_t-1][j] + 2*time_step * RHS[j];
 
     // Replacing data with the updated data, erasing the old array
     data = new_data;
+
     for (int i = 0; i < size_t; i++)
         delete[] dummy[i];
     delete[] dummy;
 }
 
-void WaveSolver::SpecificRK4(double **data, int size_t, int size_x, double space_step, double time_step){
-
+void WaveSolver::TimeRK4(double**& data, int size_t, int size_x, double space_step, double time_step){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 }
 
 /////////////////////////
@@ -77,7 +79,7 @@ void WaveSolver::SpecificRK4(double **data, int size_t, int size_x, double space
 //////PERIODIC ONES//////
 /////////////////////////
 
-std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step){
+std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double ** data, int size_t, int size_x, double space_step){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -191,6 +193,29 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
     return derivative;
 }
 
-std::vector<double> WaveSolver::RK4(double **data, int size_t, int size_x, double space_step, double time_step){
+////////////////////////
+////////////////////////
+////////////////////////
+//////WRITING DATA//////
+////////////////////////
+////////////////////////
+////////////////////////
 
+void WaveSolver::Write(std::string filename, double **data, int size_t, int size_x, double space_step, double time_step){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+    
+    std::ofstream myfile;
+    myfile.open(filename.c_str());
+
+    myfile << size_t << " " << size_x << " " << space_step << " " << time_step << "\n";
+
+    for(int i = 0; i < size_t; i++){
+        for(int j = 0; j < size_x; j++)
+            myfile << data[i][j] << " ";
+        myfile << "\n";
+    }
+
+    myfile.close();
 }
