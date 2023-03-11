@@ -20,7 +20,7 @@ class WaveSolver{
         // Time Methods
         void TimeSimpleDiff1  (double**& idata, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS); 
         void TimeCenteredDiff2(double**& idata, int size_t, int size_x, double space_step, double time_step, std::vector<double> RHS);
-        void TimeRK4(double**& data, int size_t, int size_x, double space_step, double time_step);
+        void TimeWaveRK4(double **&u_data, double **&udot_data, int size_t, int size_x, double space_step, double time_step);
 
         //Periodic Spatial Methods
         std::vector<double> PFirstDerSpaceCenteredDiff2 (double** idata, int size_t, int size_x, double space_step);
