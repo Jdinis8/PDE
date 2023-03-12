@@ -23,7 +23,7 @@ ROOTINC := $(shell root-config --incdir)
 
 SRC := $(wildcard src/*.cpp) $(wildcard src/*.C)
 OBJ := $(patsubst %.cpp, $(BINDIR)/%.o, $(notdir $(SRC))) $(patsubst %.C, $(BINDIR)/%.o, $(notdir $(SRC)))
-PYOBJ := $(wildcard graphics/*.png)
+PYOBJ := $(wildcard graphics/*.png) $(wildcard graphics/*.mp4) 
 INC := $(wildcard src/*.h)
 
 lib: $(LIBDIR)/libFT.a

@@ -13,7 +13,7 @@ int main(){
     double** data = new double*[Nt];
     double** dot_data = new double*[Nt];
 
-    for (int i = 0; i < Nt; i++){
+    for (int i = 0; i < N; i++){
         data[i] = new double[N];
         dot_data[i] = new double[N];
     }
@@ -22,17 +22,9 @@ int main(){
 
     //giving initial data
     for (int j = 0; j < N; j++){
-        //data[0][j] = cos(x0 + j*space_step);
         data[0][j] = exp(-(x0 + j * space_step) * (x0 + j * space_step));
         dot_data[0][j] = 0.;
     }
-
-    for (int i = 0; i < N; i++){
-        //wv.TimeSimpleDiff1(data, Nt, N, space_step, time_step, wv.PFirstDerSpaceCenteredDiff2(data, Nt, N, space_step));
-        Nt++;
-    }
-
-    // wv.Write("graphics/output.txt", data, Nt-1, N, space_step, time_step);
 
     wv.TimeWaveRK4(data, dot_data, sizet, N, space_step, time_step);
     wv.Write("graphics/output.txt", data, sizet, N, space_step, time_step, x0);
