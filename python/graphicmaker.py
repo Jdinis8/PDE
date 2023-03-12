@@ -43,10 +43,13 @@ x = []
 for i in range(size_x):
   x.append(i*space_step)
 
+fctr = 0
 for i in range(size_t):
-  plt.scatter(x, evolution[i], marker = "o", s=10)
-  plt.xlabel('Space (x)')
-  plt.xlabel('Value (f(x,t))')
-  plt.title(f"Time (t={i*time_step})")
-  plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi = my_dpi)
-  plt.close()
+  if fctr%100 == 0:
+    plt.scatter(x, evolution[i], marker = "o", s=10)
+    plt.xlabel('Space (x)')
+    plt.xlabel('Value (f(x,t))')
+    plt.title(f"Time (t=" + "{0:.5f}".format(i*time_step, 5) + "s)")
+    plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi = my_dpi)
+    plt.close()
+  fctr = fctr +1

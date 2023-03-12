@@ -58,8 +58,7 @@ void WaveSolver::TimeCenteredDiff2(double**& data, int size_t, int size_x, doubl
     // Replacing data with the updated data, erasing the old array
     data = new_data;
 
-    for (int i = 0; i < size_t; i++)
-        delete[] dummy[i];
+    for (int i = 0; i < size_t; i++) delete[] dummy[i];
     delete[] dummy;
 }
 
@@ -80,82 +79,87 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
     //first n places are for u(x,t) and the other n places are for pi(x,t)
     //i.e., normalstep[i][0-N] is u, normalstep[i][N-2] is for pi
 
-    std::vector<std::vector<double>> k1, k2, k3, k4;
+    std::vector<std::vector<double>> K1, K2, K3, K4;
     std::vector<double> dummy1;
-
-
     
-    for (int i = 0; i < size_t; i++){
-        k1.clear();
-        k2.clear();
-        k3.clear();
-        k4.clear();
-        dummy1.clear(); //we'll reuse dummy1
+    double **new_udata = new double*[size_t + 1];
+    double **new_udotdata = new double*[size_t + 1];
 
-        //k1[0] = u'', k1[1] = pi
-        k1.push_back(PSecondDerSpaceCenteredDiff2(u_data, i+1, size_x, space_step));
-
-        for(int j = 0; j < size_x; j++) dummy1.push_back(udot_data[i][j]);
-        k1.push_back(dummy1);
-        std::cout << "k1: " << k1[0][0] << std::endl;
-
-        //we briefly change udata for k2
-        for(int j = 0; j < size_x; j++) u_data[i][j] += time_step*k1[0][j]/2.;
-
-        k2.push_back(PSecondDerSpaceCenteredDiff2(u_data, i+1, size_x, space_step));
-        for (int j = 0; j < size_x; j++) dummy1[i] += time_step*k1[1][j]/2.;
-        k2.push_back(dummy1);
-        std::cout << "k2: " << k2[0][0] << std::endl;
-
-        //we subtract k1 and add k2 to get u_data+k2
-        for(int j = 0; j < size_x; j++) u_data[i][j] += time_step/2.*(k2[0][j]-k1[0][j]);
-        k3.push_back(PSecondDerSpaceCenteredDiff2(u_data, i+1, size_x, space_step));
-        for (int j = 0; j < size_x; j++) dummy1[i] += time_step/2.*(k2[1][j]-k1[1][j]);
-        k3.push_back(dummy1);
-        std::cout << "k3: " << k3[0][0] << std::endl;
-
-        //we do the same, but this time we take care to subtract k2/2 and add k3
-        for(int j = 0; j < size_x; j++) u_data[i][j] += time_step*(k3[0][j]-k2[0][j]/2.);
-        k4.push_back(PSecondDerSpaceCenteredDiff2(u_data, i+1, size_x, space_step));
-        for (int j = 0; j < size_x; j++) dummy1[i] += time_step*(k3[1][j]-k2[1][j]/2.);
-        k4.push_back(dummy1);
-        std::cout << "k4: " << k4[0][0] << std::endl;
-
-        //now that we have calculated all k's, it is time to finally calculate the next step in time:
-        double ** new_udata = new double*[i+2];
-        double ** new_udotdata = new double*[i+2];
-
-        for(int j = 0; j < i+2; j++){
-            new_udata[j] = new double[size_x];
-            new_udotdata[j] = new double[size_x];
-        }
-
-        for (int j = 0; j < i+1; j++)
-            for(int k = 0; k < size_x; k++){
-                new_udata[j][k] = u_data[j][k];
-                new_udotdata[j][k] = udot_data[j][k];
-            }
-
-        for(int j = 0; j < size_x; j++){
-            new_udotdata[i+1][j] = new_udotdata[i][j] + time_step/6.*(k1[0][j] + 2*k2[0][j] + 2*k3[0][j] + k4[0][j]);
-            new_udata[i+1][j] = new_udata[i][j] + time_step/6.*(k1[1][j] + 2*k2[1][j] + 2*k3[1][j] + k4[1][j]);
-        }
-    
-        double** dumb = u_data;
-        double** dumb2 = udot_data;
-
-        u_data = new_udata;
-        udot_data = new_udotdata;
-
-        for(int j = 0; j < i+1; j++){
-            delete[] dumb[j];
-            delete[] dumb2[j];
-        }
-
-        delete[] dumb;
-        delete[] dumb2;
+    for (int j = 0; j < size_t + 1; j++)
+    {
+        new_udata[j] = new double[size_x];
+        new_udotdata[j] = new double[size_x];
     }
+
+    for (int k = 0; k < size_x; k++){
+        new_udata[0][k] = u_data[0][k];
+        new_udotdata[0][k] = udot_data[0][k];
+    }
+
+    for (int i = 0; i < size_t; i++){
+        K1.clear();
+        K2.clear();
+        K3.clear();
+        K4.clear();
+        dummy1.clear();
+
+
+        //K1[0] = u'', K1[1] = pi
+        for (int j = 0; j < size_x; j++) dummy1.push_back(new_udotdata[i][j]);
+        
+        K1.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        K1.push_back(dummy1);
+
+        
+        //we briefly change udata for K2
+        for(int j = 0; j < size_x; j++){
+            new_udata[i][j] += time_step*K1[0][j]*0.5;
+                  dummy1[j] += time_step*K1[1][j]*0.5;
+        }
+
+        K2.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        K2.push_back(dummy1);
+
+        //we subtract K1 and add K2 to get u_data+K2
+        for(int j = 0; j < size_x; j++){
+            new_udata[i][j] += time_step*0.5*(K2[0][j]-K1[0][j]);
+                  dummy1[j] += time_step*0.5*(K2[1][j]-K1[1][j]);
+        }
+
+        K3.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        K3.push_back(dummy1);
+
+        //we do the same, but this time we take care to subtract K2/2 and add K3
+        for(int j = 0; j < size_x; j++){
+            new_udata[i][j] += time_step*(K3[0][j]-K2[0][j]*0.5);
+                  dummy1[j] += time_step*(K3[1][j]-K2[1][j]*0.5);
+        }
+
+        K4.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        K4.push_back(dummy1);
+
+        //correcting new_udata[i][j] to being as it was before
+        for (int j = 0; j < size_x; j++) new_udata[i][j] += time_step * (-K3[0][j]);
+
+        //now that we have calculated all k's, it is time to finally calculate the next step in time
+        //recall: new_udotdata = pi,  udata = u; thus, pi_dot = u'', u_dot = pi;
+        for(int j = 0; j < size_x; j++){
+            new_udotdata[i+1][j] = new_udotdata[i][j] + time_step/6.*(K1[0][j] + 2.*K2[0][j] + 2.*K3[0][j] + K4[0][j]);
+               new_udata[i+1][j] = new_udata[i][j] + time_step/6.*(K1[1][j] + 2.*K2[1][j] + 2.*K3[1][j] + K4[1][j]);
+        }
+    }
+
+    double **dumb = u_data;
+    double **dumb2 = udot_data;
+
+    u_data = new_udata;
+    udot_data = new_udotdata;
+
+    delete[] dumb[0];
+    delete[] dumb2[0];
     
+    delete[] dumb;
+    delete[] dumb2;
 }
 
 /////////////////////////

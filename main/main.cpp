@@ -4,11 +4,11 @@
 int main(){
 
     double space_length = 2*M_PI;
-    int N = 300;
+    int N = 2000;
     int Nt = 1;
-    int sizet = 50;
+    int sizet = 10000;
     double space_step = space_length/(double(N));
-    double time_step = space_step/2.;
+    double time_step = 0.001;
 
     double** data = new double*[Nt];
     double** dot_data = new double*[Nt];
@@ -23,7 +23,7 @@ int main(){
     //giving initial data
     for (int j = 0; j < N; j++){
         data[0][j] = cos(j*space_step);
-        dot_data[0][j] = 0.;
+        dot_data[0][j] = sin(2.*j * space_step);
     }
 
     for (int i = 0; i < N; i++){
@@ -36,5 +36,13 @@ int main(){
     wv.TimeWaveRK4(data, dot_data, sizet, N, space_step, time_step);
     wv.Write("graphics/output.txt", data, sizet, N, space_step, time_step);
 
+    for (int i = 0; i < sizet+1; i++)
+    {
+        delete[] data[i];
+        delete[] dot_data[i];
+    }
+
+    delete[] data;
+    delete[] dot_data;
     return 0;
 }
