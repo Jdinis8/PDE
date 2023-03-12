@@ -23,7 +23,7 @@ ROOTINC := $(shell root-config --incdir)
 
 SRC := $(wildcard src/*.cpp) $(wildcard src/*.C)
 OBJ := $(patsubst %.cpp, $(BINDIR)/%.o, $(notdir $(SRC))) $(patsubst %.C, $(BINDIR)/%.o, $(notdir $(SRC)))
-PYOBJ := $(wildcard graphics/*)
+PYOBJ := $(wildcard graphics/*.png)
 INC := $(wildcard src/*.h)
 
 lib: $(LIBDIR)/libFT.a
@@ -95,3 +95,7 @@ cclean:
 	rm -f $(PYOBJ)
 	./Cleaner
 
+cleanpy:
+	@echo Cleaning pictures
+	rm -f $(PYOBJ)
+	./Cleaner

@@ -52,7 +52,7 @@ for i in range(size_t):
     plt.xlabel('Space (x)')
     plt.ylabel('Value (f(x,t))')
     plt.xlim([x0, x0 + size_x*space_step])
-    plt.ylim([0, 1])
+    plt.ylim([min(min(evolution)), max(max(evolution))])
     plt.title(f"Time (t=" + "{0:.5f}".format(i*time_step, 5) + "s)")
     plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi = my_dpi)
     plt.close()
