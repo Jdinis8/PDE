@@ -17,6 +17,7 @@ size_t = 0
 size_x = 0
 space_step = 0
 time_step = 0
+x0 = 0
 evolution = []
 
 with open(filename) as f:
@@ -28,6 +29,7 @@ with open(filename) as f:
       size_x = int(line.split()[1])
       space_step = float(line.split()[2])
       time_step = float(line.split()[3])
+      x0 = float(line.split()[4])
       ctr += 1
     else:
       dumb = []
@@ -41,14 +43,16 @@ with open(filename) as f:
 x = []
 
 for i in range(size_x):
-  x.append(i*space_step)
+  x.append(x0 + i*space_step)
 
 fctr = 0
 for i in range(size_t):
   if fctr%100 == 0:
     plt.scatter(x, evolution[i], marker = "o", s=10)
     plt.xlabel('Space (x)')
-    plt.xlabel('Value (f(x,t))')
+    plt.ylabel('Value (f(x,t))')
+    plt.xlim([x0, x0 + size_x*space_step])
+    plt.ylim([0, 1])
     plt.title(f"Time (t=" + "{0:.5f}".format(i*time_step, 5) + "s)")
     plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi = my_dpi)
     plt.close()

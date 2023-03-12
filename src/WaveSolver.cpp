@@ -294,7 +294,7 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
 ////////////////////////
 ////////////////////////
 
-void WaveSolver::Write(std::string filename, double **data, int size_t, int size_x, double space_step, double time_step){
+void WaveSolver::Write(std::string filename, double **data, int size_t, int size_x, double space_step, double time_step, double x0){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -302,7 +302,7 @@ void WaveSolver::Write(std::string filename, double **data, int size_t, int size
     std::ofstream myfile;
     myfile.open(filename.c_str());
 
-    myfile << size_t << " " << size_x << " " << space_step << " " << time_step << "\n";
+    myfile << size_t << " " << size_x << " " << space_step << " " << time_step << " " << x0 << "\n";
 
     for(int i = 0; i < size_t; i++){
         for(int j = 0; j < size_x; j++)
