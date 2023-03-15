@@ -28,7 +28,7 @@ int main(){
 
     wv.TimeWaveRK4(data, dot_data, sizet, N, space_step, time_step);
     wv.Write("graphics/output.txt", data, sizet, N, space_step, time_step, x0);
-
+    
     for (int i = 0; i < sizet+1; i++)
     {
         delete[] data[i];

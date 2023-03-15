@@ -82,7 +82,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
     std::vector<std::vector<double>> K1, K2, K3, K4;
     std::vector<double> dummy1;
     
-    double **new_udata = new double*[size_t + 1];
+    double **new_udata    = new double*[size_t + 1];
     double **new_udotdata = new double*[size_t + 1];
 
     for (int j = 0; j < size_t + 1; j++)
@@ -155,11 +155,9 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
     u_data = new_udata;
     udot_data = new_udotdata;
 
-    delete[] dumb[0];
-    delete[] dumb2[0];
-    
     delete[] dumb;
-    delete[] dumb2;
+    //delete[] dumb2;
+    
 }
 
 /////////////////////////
@@ -284,6 +282,10 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
     derivative.push_back((2.*data[size_t - 1][size_x - 1] - 5. * data[size_t - 1][size_x - 2] + 4.*data[size_t - 1][size_x-3] - data[size_t-1][size_x-4]) / ( space_step * space_step * space_step));
 
     return derivative;
+}
+
+std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int size_x, double space_step){
+
 }
 
 ////////////////////////
