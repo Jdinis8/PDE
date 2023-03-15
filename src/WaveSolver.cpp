@@ -298,12 +298,24 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
 ////////////////////////
 ////////////////////////
 
-void WaveSolver::ConvergenceTest(double initial_step, int size_t, int size_x, double space_step){
+std::vector<double> WaveSolver::ConvergenceTest(int size_t, int size_x, double space_step, double time_step, int f){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
-}
+    
+    std::vector<double> conv;
+    std::vector<double> high, medium, low; //h, fh and f^2h
 
+    for(int i = 0; i < 1000; i++){
+        double** high_res = new double*[1];
+        double** medium_res = new double*[1];
+        for(int j = 0; j < size_x; j++){
+
+        }
+    }
+
+    return conv;
+}
 
 ////////////////////////
 ////////////////////////
