@@ -285,8 +285,25 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
 }
 
 std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int size_x, double space_step){
-
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 }
+
+////////////////////////
+////////////////////////
+////////////////////////
+///////CONVERGENCE//////
+////////////////////////
+////////////////////////
+////////////////////////
+
+void WaveSolver::ConvergenceTest(double initial_step, int size_t, int size_x, double space_step){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+}
+
 
 ////////////////////////
 ////////////////////////

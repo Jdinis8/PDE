@@ -35,6 +35,9 @@ class WaveSolver{
         //Spectral Method
         std::vector<double> PseudoSpectral(double **data, int size_t, int size_x, double space_step);
 
+        //Convergence
+        void ConvergenceTest(double initial_step, int size_t, int size_x, double space_step);
+
         //Writing stuff to a txt file
         void Write(std::string filename, double**data, int size_t, int size_x, double space_step, double time_step, double x0);
 
