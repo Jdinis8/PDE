@@ -36,15 +36,7 @@ int main(){
     wv.TimeWaveRK4(data, dot_data, sizet, N, space_step, time_step);
     wv.Write("graphics/output.txt", data, sizet, N, space_step, time_step, x0);
     
-    std::vector<double> conv = wv.ConvergenceTest(copydata, copydot_data, sizet, N, space_step, time_step, 2);
-
-    double av = 0.;
-    for(int i = 0; i < int(conv.size()); i++){
-        std::cout << conv[i] << std::endl;
-        av += conv[i];
-    }
-
-    std::cout << "average: " << av << std::endl;
+    std::vector<std::vector<double>> conv = wv.ConvergenceTest(copydata, copydot_data, sizet, N, space_step, time_step, 2, 2);
 
     wv.Write("graphics/conv.txt", conv, sizet, N/(f*f), space_step*f*f, time_step, x0);
 

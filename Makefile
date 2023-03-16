@@ -25,8 +25,6 @@ SRC := $(wildcard src/*.cpp) $(wildcard src/*.C)
 OBJ := $(patsubst %.cpp, $(BINDIR)/%.o, $(notdir $(SRC))) $(patsubst %.C, $(BINDIR)/%.o, $(notdir $(SRC)))
 INC := $(wildcard src/*.h)
 
-PYOBJ := $(wildcard graphics/*.png) $(wildcard graphics/*.mp4)
-
 lib: $(LIBDIR)/libFT.a
 
 $(LIBDIR)/libFT.a: $(OBJ)
@@ -86,6 +84,8 @@ convpy:
 tilde := $(wildcard */*~) $(wildcard *~)
 exe := $(wildcard $(BINDIR)/*.exe) $(wildcard *.exe)
 obj := $(wildcard */*.o) $(wildcard *.o) $(wildcard */*.so) $(wildcard */*.pcm) $(wildcard */*.d)
+pyobj := $(wildcard graphics/*.png) $(wildcard graphics/*.mp4)
+txt := $(wildcard graphics/*.txt)
 
 clean:
 	@echo Cleaning
@@ -97,10 +97,12 @@ cclean:
 	@echo Major Cleaning
 	rm -f $(exe) $(obj) $(tilde) $(generated)
 	rm -f $(LIBDIR)/libFT.a
-	rm -f $(PYOBJ)
+	rm -f $(pyobj)
 	./Cleaner
 
-cleanpy:
-	@echo Cleaning pictures
-	rm -f $(PYOBJ)
+cleanall:
+	@echo Major Cleaning
+	rm -f $(exe) $(obj) $(tilde) $(generated)
+	rm -f $(LIBDIR)/libFT.a
+	rm -f $(pyobj) $(txt)
 	./Cleaner

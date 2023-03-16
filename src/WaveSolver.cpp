@@ -296,7 +296,7 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
 ////////////////////////
 ////////////////////////
 
-std::vector<double> WaveSolver::ConvergenceTest(double **udata, double** udotdata, int size_t, int size_x, double space_step, double time_step, int f){
+std::vector<std::vector<double>> WaveSolver::ConvergenceTest(double **udata, double** udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -304,11 +304,12 @@ std::vector<double> WaveSolver::ConvergenceTest(double **udata, double** udotdat
     //one has to make sure that size_x is divisible by f and f^2 in order
     //for us to do a good comparison
 
-    std::vector<double> conv;
+    std::vector<std::vector<double>> res;
+    std::vector<double> conv1, conv2;
 
     if(size_x%f != 0 || size_x%(f*f) != 0){
         std::cout << "[WARNING] The step size in x is not divisible by " << f << " or " << f*f << ", please try another f!" << std::endl;
-        return conv;
+        return res;
     }
 
     std::vector<double> high, medium, low; //h, fh and f^2h
@@ -336,8 +337,8 @@ std::vector<double> WaveSolver::ConvergenceTest(double **udata, double** udotdat
         mediumudot_res[0][j] = udotdata[0][j*f];
     }
     for(int j = 0; j < size_x; j++){
-        highu_res[0][j]    = udata[0][j*f];
-        highudot_res[0][j] = udotdata[0][j*f];
+        highu_res[0][j]    = udata[0][j];
+        highudot_res[0][j] = udotdata[0][j];
     }
 
     //we have now initial data for differente types of resolution
@@ -351,8 +352,13 @@ std::vector<double> WaveSolver::ConvergenceTest(double **udata, double** udotdat
     Write("graphics/outputmedium.txt", mediumu_res, size_t, size_x/f, space_step*f, time_step, -M_PI);
     Write("graphics/outputhigh.txt", highu_res, size_t, size_x, space_step, time_step, -M_PI);
 
-    for(int i = 0; i < size_x/(f*f); i++)
-        conv.push_back((highu_res[size_t][f*f*i] - mediumu_res[size_t][f*i]) / (mediumu_res[size_t][f*i] - lowu_res[size_t][i]));
+    for(int i = 0; i < size_x/(f*f); i++){
+        conv1.push_back(pow(f,order)*(highu_res[size_t][f*f*i] - mediumu_res[size_t][f*i]));
+        conv2.push_back(mediumu_res[size_t][f*i] - lowu_res[size_t][i]);
+    }
+
+    res.push_back(conv1);
+    res.push_back(conv2);
 
     //clearing all allocated memory
     for (int i = 0; i < size_t + 1; i++){
@@ -371,7 +377,7 @@ std::vector<double> WaveSolver::ConvergenceTest(double **udata, double** udotdat
     delete[] highu_res;
     delete[] highudot_res;
 
-    return conv;
+    return res;
 }
 
 ////////////////////////
@@ -401,7 +407,7 @@ void WaveSolver::Write(std::string filename, double **data, int size_t, int size
     myfile.close();
 }
 
-void WaveSolver::Write(std::string filename, std::vector<double> data, int size_t, int size_x, double space_step, double time_step, double x0){
+void WaveSolver::Write(std::string filename, std::vector<std::vector<double>> data, int size_t, int size_x, double space_step, double time_step, double x0){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -411,9 +417,10 @@ void WaveSolver::Write(std::string filename, std::vector<double> data, int size_
 
     myfile << size_t << " " << size_x << " " << space_step << " " << time_step << " " << x0 << "\n";
 
-    for(int j = 0; j < size_x; j++)
-        myfile << data[j] << " ";
-    myfile << "\n";
-
+    for(int i = 0; i < int(data.size()); i++){
+        for(int j = 0; j < size_x; j++)
+            myfile << data[i][j] << " ";
+        myfile << "\n";
+    }
     myfile.close();
 }
