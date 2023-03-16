@@ -23,8 +23,9 @@ ROOTINC := $(shell root-config --incdir)
 
 SRC := $(wildcard src/*.cpp) $(wildcard src/*.C)
 OBJ := $(patsubst %.cpp, $(BINDIR)/%.o, $(notdir $(SRC))) $(patsubst %.C, $(BINDIR)/%.o, $(notdir $(SRC)))
-PYOBJ := $(wildcard graphics/*.png) $(wildcard graphics/*.mp4) 
 INC := $(wildcard src/*.h)
+
+PYOBJ := $(wildcard graphics/*.png) $(wildcard graphics/*.mp4)
 
 lib: $(LIBDIR)/libFT.a
 
@@ -75,6 +76,10 @@ py:
 	@echo Preparing some visualization
 	python3 python/graphicmaker.py
 	python3 python/gifmaker.py
+
+convpy:
+	@echo Printing convergence test
+	python3 python/conv.py
 
 ################## clean #########################
 

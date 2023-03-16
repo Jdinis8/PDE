@@ -149,15 +149,11 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         }
     }
 
-    double **dumb = u_data;
+    double **dumb  = u_data;
     double **dumb2 = udot_data;
 
-    u_data = new_udata;
+    u_data    = new_udata;
     udot_data = new_udotdata;
-
-    delete[] dumb;
-    //delete[] dumb2;
-    
 }
 
 /////////////////////////
@@ -288,6 +284,8 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
+    std::vector<double> pseudo;
+    return pseudo;
 }
 
 ////////////////////////
@@ -298,21 +296,80 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
 ////////////////////////
 ////////////////////////
 
-std::vector<double> WaveSolver::ConvergenceTest(int size_t, int size_x, double space_step, double time_step, int f){
+std::vector<double> WaveSolver::ConvergenceTest(double **udata, double** udotdata, int size_t, int size_x, double space_step, double time_step, int f){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
     
+    //one has to make sure that size_x is divisible by f and f^2 in order
+    //for us to do a good comparison
+
     std::vector<double> conv;
+
+    if(size_x%f != 0 || size_x%(f*f) != 0){
+        std::cout << "[WARNING] The step size in x is not divisible by " << f << " or " << f*f << ", please try another f!" << std::endl;
+        return conv;
+    }
+
     std::vector<double> high, medium, low; //h, fh and f^2h
 
-    for(int i = 0; i < 1000; i++){
-        double** high_res = new double*[1];
-        double** medium_res = new double*[1];
-        for(int j = 0; j < size_x; j++){
+    double** highu_res      = new double*[1]; //we allocate memory space for initial data with different resolutions
+    double** highudot_res   = new double*[1];
+    double** mediumu_res    = new double*[1];
+    double** mediumudot_res = new double*[1];
+    double** lowu_res       = new double*[1];
+    double** lowudot_res    = new double*[1];
 
-        }
+    lowu_res[0]       = new double[size_x/(f*f)];
+    lowudot_res[0]    = new double[size_x/(f*f)];
+    mediumu_res[0]    = new double[size_x/f];
+    mediumudot_res[0] = new double[size_x/f];
+    highu_res[0]      = new double[size_x];
+    highudot_res[0]   = new double[size_x];
+    
+    for(int j = 0; j < size_x/(f*f); j++){
+        lowu_res[0][j]    = udata[0][j*f*f];
+        lowudot_res[0][j] = udotdata[0][j*f*f];
     }
+    for(int j = 0; j < size_x/f; j++){
+        mediumu_res[0][j]    = udata[0][j*f];
+        mediumudot_res[0][j] = udotdata[0][j*f];
+    }
+    for(int j = 0; j < size_x; j++){
+        highu_res[0][j]    = udata[0][j*f];
+        highudot_res[0][j] = udotdata[0][j*f];
+    }
+
+    //we have now initial data for differente types of resolution
+    //we now apply RK4 wave solver to this
+    TimeWaveRK4(lowu_res,    lowudot_res,    size_t, size_x/(f*f), space_step*f*f, time_step);
+    TimeWaveRK4(mediumu_res, mediumudot_res, size_t, size_x/f,     space_step*f,   time_step);
+    TimeWaveRK4(highu_res,   highudot_res,   size_t, size_x,       space_step,     time_step);
+
+
+    Write("graphics/outputlow.txt", lowu_res, size_t, size_x/(f*f), space_step*f*f, time_step, -M_PI);
+    Write("graphics/outputmedium.txt", mediumu_res, size_t, size_x/f, space_step*f, time_step, -M_PI);
+    Write("graphics/outputhigh.txt", highu_res, size_t, size_x, space_step, time_step, -M_PI);
+
+    for(int i = 0; i < size_x/(f*f); i++)
+        conv.push_back((highu_res[size_t][f*f*i] - mediumu_res[size_t][f*i]) / (mediumu_res[size_t][f*i] - lowu_res[size_t][i]));
+
+    //clearing all allocated memory
+    for (int i = 0; i < size_t + 1; i++){
+        delete[] lowu_res[i];
+        delete[] lowudot_res[i];
+        delete[] mediumu_res[i];
+        delete[] mediumudot_res[i];
+        delete[] highu_res[i];
+        delete[] highudot_res[i];
+    }
+
+    delete[] lowu_res;
+    delete[] lowudot_res;
+    delete[] mediumu_res;
+    delete[] mediumudot_res;
+    delete[] highu_res;
+    delete[] highudot_res;
 
     return conv;
 }
@@ -340,6 +397,23 @@ void WaveSolver::Write(std::string filename, double **data, int size_t, int size
             myfile << data[i][j] << " ";
         myfile << "\n";
     }
+
+    myfile.close();
+}
+
+void WaveSolver::Write(std::string filename, std::vector<double> data, int size_t, int size_x, double space_step, double time_step, double x0){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+    
+    std::ofstream myfile;
+    myfile.open(filename.c_str());
+
+    myfile << size_t << " " << size_x << " " << space_step << " " << time_step << " " << x0 << "\n";
+
+    for(int j = 0; j < size_x; j++)
+        myfile << data[j] << " ";
+    myfile << "\n";
 
     myfile.close();
 }
