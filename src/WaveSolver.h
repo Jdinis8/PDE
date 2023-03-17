@@ -36,12 +36,15 @@ class WaveSolver{
         std::vector<double> PseudoSpectral(double **data, int size_t, int size_x, double space_step);
 
         //Convergence
-        std::vector<std::vector<double>> ConvergenceTest(double **data, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
+        std::vector<std::vector<double>> ConvergenceTest(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
+        double L2NormStep(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
+        std::vector<double> L2NormTime(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f);
 
-        //Writing stuff to a txt file
-        void Write(std::string filename, double**data, int size_t, int size_x, double space_step, double time_step, double x0);
+        // Writing stuff to a txt file
+        void Write(std::string filename, double **data, int size_t, int size_x, double space_step, double time_step, double x0);
         void Write(std::string filename, std::vector<std::vector<double>> data, int size_t, int size_x, double space_step, double time_step, double x0); //just to write the convergence data
-
+        void Write(std::string filename, double **data, int size_h);
+        void Write(std::string filename, std::vector<double> data, double time_step);
 };
 
 #endif

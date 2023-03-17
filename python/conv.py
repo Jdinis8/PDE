@@ -56,3 +56,35 @@ plt.legend()
 plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/convergencetest_time_' +
                 "{0:.5f}".format(size_t*time_step, 5) + '.png', dpi=my_dpi)
 plt.close()
+
+
+##now for L2 norm
+
+filename = '/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/l2.txt'
+ctr = 0
+x = []
+y = []
+
+with open(filename) as f:
+
+  for line in f:
+    ##first line of .txt has width, length, nvar and tilesize
+    if(ctr == 0):
+      for item in line.split():
+        x.append(float(item))
+      ctr = ctr + 1
+    elif(ctr == 1):
+      for item in line.split():
+        y.append(float(item))
+    else:
+      break
+
+plt.plot(x, y, marker="o", c="hotpink", linewidth = 1, markersize = 2)
+plt.ylim([-0.5,
+          max(y) + 0.1*abs(max(y))])
+plt.xlabel('Time (t)')
+plt.ylabel('L2 Norm')
+plt.axhline(y=2, color="#88c999")
+#plt.gca().invert_xaxis() #in case you want to change the order of the graphic
+plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/l2norm.png', dpi=my_dpi)
+plt.close()
