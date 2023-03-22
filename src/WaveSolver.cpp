@@ -527,8 +527,14 @@ std::vector<double> WaveSolver::L2NormTime(double **udata, double **udotdata, in
     return l2;
 }
 
-void WaveSolver::Ghost(double** udata, double** udotdata, int& size_t, int& size_x, int amt_ghost){
+void WaveSolver::Ghost(double** udata, double** udotdata, int& size_t, int& size_x){
+    double** newu_data = new double*[size_t];
+    for(int i = 0; i < size_t; i++)
+        newu_data[i] = new double[size_x + 2*amt_ghost];
     
+    for(int i = 0; i < size_t; i++){
+        for(int j = 0; j < size_t; j++) newu_data[i][j] = udata[i][size_x-1-j];
+    }
 }
 
 
