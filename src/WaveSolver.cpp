@@ -418,15 +418,15 @@ double WaveSolver::L2NormStep(double **udata, double **udotdata, int size_t, int
 
     //we have now initial data for differente types of resolution
     //we now apply RK4 wave solver to this
-    TimeWaveRK4(lowu_res,    lowudot_res,    size_t, size_x/(f*f), space_step*f*f, time_step);
-    TimeWaveRK4(mediumu_res, mediumudot_res, size_t, size_x/f,     space_step*f,   time_step);
+    TimeWaveRK4(lowu_res,    lowudot_res,    size_t/(f*f), size_x/(f*f), space_step*f*f, time_step*f*f);
+    TimeWaveRK4(mediumu_res, mediumudot_res, size_t/(f*f), size_x/f,     space_step*f,   time_step*f*f);
     TimeWaveRK4(highu_res,   highudot_res,   size_t, size_x,       space_step,     time_step);
     
     double fdif(0.), sdif(0.);
 
     for(int i = 0; i < size_x/(f*f); i++){
-        fdif += (mediumu_res[size_t][f*i] - lowu_res[size_t][i])*(mediumu_res[size_t][f*i] - lowu_res[size_t][i]);
-        sdif += (mediumu_res[size_t][f*i] - highu_res[size_t][f*f*i])*(mediumu_res[size_t][f*i] - highu_res[size_t][f*f*i]);
+        fdif += (mediumu_res[size_t/f][f*i] - lowu_res[size_t/(f*f)][i])*(mediumu_res[size_t/f][f*i] - lowu_res[size_t/(f*f)][i]);
+        sdif += (mediumu_res[size_t/f][f*i] - highu_res[size_t][f*f*i])*(mediumu_res[size_t/f][f*i] - highu_res[size_t][f*f*i]);
     }
 
     // clearing all allocated memory
@@ -526,6 +526,11 @@ std::vector<double> WaveSolver::L2NormTime(double **udata, double **udotdata, in
 
     return l2;
 }
+
+void WaveSolver::Ghost(double** udata, double** udotdata, int& size_t, int& size_x, int amt_ghost){
+    
+}
+
 
 ////////////////////////
 ////////////////////////
