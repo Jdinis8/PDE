@@ -6,12 +6,13 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
-
+#include "Matrix.h"
 
 //#define DEBUG
 
 class WaveSolver{
     public:
+        WaveSolver(double, int);
         WaveSolver();
         ~WaveSolver() = default;
 

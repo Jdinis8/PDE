@@ -71,17 +71,34 @@ std::vector<std::vector<double>> Matrix::Mult(std::vector<std::vector<double>> m
     return res;
 }
 
-std::vector<double>& Matrix::operator[](int i){
-    #ifdef DEBUG
-        printf("[%s]\n", __PRETTY_FUNCTION__);
-    #endif
-    std::vector<double> vec;
+Matrix* Matrix::ChebyshevDN(double *chebyshevpts, int size){
+    double** mtp = new double*[size];
+    for (int i = 0; i < size; i++) mtp[i] = new double[size];
+
+    
+    Matrix* mtx = new Matrix(mtp, size, size);
+
+    return mtx;
+}
+
+    /////////////////
+    /////////////////
+    ////OPERATORS////
+    /////////////////
+    /////////////////
+
+    std::vector<double> &Matrix::operator[](int i)
+{
+#ifdef DEBUG
+    printf("[%s]\n", __PRETTY_FUNCTION__);
+#endif
+    std::vector<double>* vec = new std::vector<double>;
     if(i < 0 || i >= m){
         std::cout << "[WARNING] You are trying to access a row of the matrix which does not existe!!" << std::endl;
-        return vec;
+        return *vec;
     }
-    for(int j = 0; j < m; j++) vec.push_back(mtx[i][j]);
-    return vec;
+    for(int j = 0; j < m; j++) vec->push_back(mtx[i][j]);
+    return *vec;
 }
 
 std::vector<double> Matrix::operator[](int i) const{
@@ -90,7 +107,7 @@ std::vector<double> Matrix::operator[](int i) const{
     #endif
     std::vector<double> vec;
     if(i < 0 || i >= m){
-        std::cout << "[WARNING] You are trying to access a row of the matrix which does not existe!!" << std::endl;
+        std::cout << "[WARNING] You are trying to access a row of the matrix which does not exist!!" << std::endl;
         return vec;
     }
     for(int j = 0; j < m; j++) vec.push_back(mtx[i][j]);

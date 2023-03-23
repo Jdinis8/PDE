@@ -3,11 +3,11 @@
 
 int main(){
 
-    double space_length = 2*M_PI, x0 = -M_PI, tf = 15;
+    double space_length = 2, x0 = -1, tf = 2;
     int N(200);
     int Nt(1);
     int f(2), order(2);
-    double space_step = space_length/(double(N)+1.);
+    double space_step = space_length/(double(N));
     double time_step = 0.001*space_step;
     int sizet = int(tf/time_step);
 
@@ -27,7 +27,7 @@ int main(){
 
     //giving initial data
     for (int j = 0; j < N; j++){
-        data[0][j] = exp(-(x0 + j * space_step) * (x0 + j * space_step));
+        data[0][j] = exp(-(x0 + j * space_step) * (x0 + j * space_step)/0.1);
         dot_data[0][j] = 0.;
         copydata[0][j] = data[0][j];
         copydot_data[0][j] = dot_data[0][j];

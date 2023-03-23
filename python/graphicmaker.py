@@ -47,7 +47,7 @@ for i in range(size_x):
 
 fctr = 0
 for i in range(size_t):
-  if fctr%100 == 0:
+  if fctr%5000 == 0:
     plt.scatter(x, evolution[i], marker = "o", s=10)
     plt.xlabel('Space (x)')
     plt.ylabel('Value (f(x,t))')

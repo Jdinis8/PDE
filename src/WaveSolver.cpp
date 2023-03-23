@@ -1,11 +1,16 @@
 #include "WaveSolver.h"
 
-WaveSolver::WaveSolver(){
+WaveSolver::WaveSolver(double icfl, int ghost): CFL(icfl), amt_ghost(ghost){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
 }
 
+WaveSolver::WaveSolver(): CFL(0.5), amt_ghost(2){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+}
 ////////////////////////
 ////////////////////////
 ////////////////////////
@@ -174,6 +179,7 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double ** data, int 
     //Below: size_t-1 means the most recent set of points, size_x-1 means the last point is equal to the point just before the first; even more below, when we are calculating the last derivative, the first term after the last one of our array must be equal to the initial one, because we have periodic solutions in this method
    
     std::vector<double> derivative;
+
     derivative.push_back((data[size_t - 1][size_x - 1] - data[size_t - 1][1]) / (2. * space_step));
 
     for (int i = 1; i < size_x-1; i++)
@@ -528,13 +534,42 @@ std::vector<double> WaveSolver::L2NormTime(double **udata, double **udotdata, in
 }
 
 void WaveSolver::Ghost(double** udata, double** udotdata, int& size_t, int& size_x){
-    double** newu_data = new double*[size_t];
-    for(int i = 0; i < size_t; i++)
-        newu_data[i] = new double[size_x + 2*amt_ghost];
+    double** newu_data    = new double*[size_t];
+    double** newudot_data = new double*[size_t];
     
     for(int i = 0; i < size_t; i++){
-        for(int j = 0; j < size_t; j++) newu_data[i][j] = udata[i][size_x-1-j];
+        newu_data[i]    = new double[size_x + 2*amt_ghost];
+        newudot_data[i] = new double[size_x + 2*amt_ghost];
     }
+    
+    for(int i = 0; i < size_t; i++){
+        for(int j = 0; j < amt_ghost; j++){
+            newu_data[i][j]    = udata[i][size_x-1-j];
+            newudot_data[i][j] = udotdata[i][size_x-1-j];
+        }
+        for(int j = amt_ghost; j < size_x+amt_ghost; j++){
+            newu_data[i][j]    = udata[i][j];
+            newudot_data[i][j] = udotdata[i][j];
+        }
+        for(int j = size_x+amt_ghost; j < size_x+2*amt_ghost; j++){
+            newu_data[i][j]    = udata[i][j-size_x-amt_ghost];
+            newudot_data[i][j] = udotdata[i][j-size_x-amt_ghost];
+        }
+    }
+
+    double ** udumb = udata;
+    double ** udotdumb = udotdata;
+
+    for(int i = 0; i < size_t; i++){
+        delete[] udumb[i];
+        delete[] udotdumb[i];
+    }
+
+    delete[] udumb;
+    delete[] udotdumb;
+
+    udata = newu_data;
+    udotdata = newudot_data;
 }
 
 

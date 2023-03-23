@@ -17,9 +17,13 @@ class Matrix{
         double**                         Mult(double** mtx2, int m2, int n2);
         std::vector<std::vector<double>> Mult(std::vector<std::vector<double>> mtx2);
 
+        Matrix* ChebyshevDN(double* chebyshevpts, int size);
+
+        //to get info from the matrix
         int GetRowN() const;
         int GetColN() const;
 
+        //operators and printers
         std::vector<double> &operator[](int i);
         std::vector<double>  operator[](int i) const;
 
