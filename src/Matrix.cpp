@@ -71,14 +71,43 @@ std::vector<std::vector<double>> Matrix::Mult(std::vector<std::vector<double>> m
     return res;
 }
 
-Matrix* Matrix::ChebyshevDN(double *chebyshevpts, int size){
-    double** mtp = new double*[size];
-    for (int i = 0; i < size; i++) mtp[i] = new double[size];
+Matrix Matrix::ChebyshevDN(double *chebyshevpts, int N){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 
-    
-    Matrix* mtx = new Matrix(mtp, size, size);
+    double** mtp = new double*[N+1];
+    for (int i = 0; i < N+1; i++) mtp[i] = new double[N+1];
+    double ci(1.), cj(1.);
 
-    return mtx;
+    //we first populate the four edges of the matrix
+    mtp[0][0] = (2*N*N+1.)/6.;
+    mtp[N][N] = -mtp[0][0];
+    mtp[N][0] = -0.5*pow(-1, N);
+    mtp[0][N] = -mtp[N][0];
+
+    //then the diagonal
+    for(int i = 0; i < N; i++) mtp[i][i]= -chebyshevpts[i]/(2.*(1.-chebyshevpts[i]*chebyshevpts[i]));
+
+    //the off terms of the diagonal, except the N+1'th row and the N+1'th column
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+            if(i != j){
+                if(i == 0 || i == N) ci = 2.;
+                else ci = 1.;
+                if(j == 0 || j == N) cj = 2.;
+                else cj = 1.;
+                mtp[i][j] = ci/cj*pow(-1, i + j) / (chebyshevpts[i] - chebyshevpts[j]);
+            }
+        }
+    }
+
+    for(int i = 1; i < N; i++){
+        mtp[i][N] = 0.5*pow(-1, N+i)/(1.+chebyshevpts[i]);
+        mtp[N][i] =-0.5*pow(-1, i)/(1.-chebyshevpts[i]);
+    }
+
+    return Matrix(mtp, N+1, N+1);
 }
 
     /////////////////

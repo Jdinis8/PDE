@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <math.h>
 
 //#define DEBUG
 
@@ -17,7 +18,7 @@ class Matrix{
         double**                         Mult(double** mtx2, int m2, int n2);
         std::vector<std::vector<double>> Mult(std::vector<std::vector<double>> mtx2);
 
-        Matrix* ChebyshevDN(double* chebyshevpts, int size);
+        Matrix ChebyshevDN(double* chebyshevpts, int N);
 
         //to get info from the matrix
         int GetRowN() const;
