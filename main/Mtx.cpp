@@ -45,7 +45,7 @@ int main(){
 
     std::cout << vmult[0] << " " << vmult[1] << std::endl;
 
-    int ncheb(1);
+    int ncheb(5);
     double* cheb = new double[ncheb];
     for(int i = 0; i < ncheb; i++) cheb[i] = cos(i*M_PI/ncheb);
     

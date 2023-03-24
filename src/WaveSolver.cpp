@@ -286,12 +286,14 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
     return derivative;
 }
 
-std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int size_x, double space_step){
+std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int size_x, double* cheb_x){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
-    std::vector<double> pseudo;
-    return pseudo;
+    Matrix m;
+    Matrix cheb = m.ChebyshevDN(cheb_x, size_x-1);
+    cheb = cheb*cheb; //twice cheb means second derivative
+    return cheb.Mult(data[size_t - 1]);
 }
 
 ////////////////////////

@@ -1,11 +1,8 @@
 #ifndef __WaveSolver__
 #define __WaveSolver__
 
-#include <iostream>
 #include <sstream>
 #include <fstream>
-#include <vector>
-#include <math.h>
 #include "Matrix.h"
 
 //#define DEBUG
@@ -34,7 +31,7 @@ class WaveSolver{
         std::vector<double> SecondDerSpaceCenteredDiff2(double **data, int size_t, int size_x, double space_step);
 
         //Spectral Method
-        std::vector<double> PseudoSpectral(double **data, int size_t, int size_x, double space_step);
+        std::vector<double> PseudoSpectral(double **data, int size_t, int size_x, double* cheb_x);
 
         //Convergence
         std::vector<std::vector<double>> ConvergenceTest(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
