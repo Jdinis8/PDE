@@ -1,12 +1,12 @@
 #include "WaveSolver.h"
 
-WaveSolver::WaveSolver(double icfl, int ghost): CFL(icfl), amt_ghost(ghost){
+WaveSolver::WaveSolver(double icfl, int ghost): CFL(icfl), amt_ghost(ghost), method("FD"){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
 }
 
-WaveSolver::WaveSolver(): CFL(0.5), amt_ghost(2){
+WaveSolver::WaveSolver(): CFL(0.5), amt_ghost(2), method("FD"){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -89,6 +89,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
     
     double **new_udata    = new double*[size_t + 1];
     double **new_udotdata = new double*[size_t + 1];
+    double *cheb = new double[size_x];
 
     for (int j = 0; j < size_t + 1; j++)
     {
@@ -101,6 +102,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         new_udotdata[0][k] = udot_data[0][k];
     }
 
+    if(method == "PS") for(int i = 0; i < size_x; i++) cheb[i] = cos(i*M_PI/size_x);
+
     for (int i = 0; i < size_t; i++){
         K1.clear();
         K2.clear();
@@ -112,7 +115,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         //K1[0] = u'', K1[1] = pi
         for (int j = 0; j < size_x; j++) dummy1.push_back(new_udotdata[i][j]);
         
-        K1.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        if(method == "FD") K1.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        else K1.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
         K1.push_back(dummy1);
 
         
@@ -122,7 +126,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
                   dummy1[j] += time_step*K1[1][j]*0.5;
         }
 
-        K2.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        if(method == "FD") K2.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        else K2.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
         K2.push_back(dummy1);
 
         //we subtract K1 and add K2 to get u_data+K2
@@ -131,7 +136,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
                   dummy1[j] += time_step*0.5*(K2[1][j]-K1[1][j]);
         }
 
-        K3.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        if(method == "FD") K3.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        else K3.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
         K3.push_back(dummy1);
 
         //we do the same, but this time we take care to subtract K2/2 and add K3
@@ -140,7 +146,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
                   dummy1[j] += time_step*(K3[1][j]-K2[1][j]*0.5);
         }
 
-        K4.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        if(method == "FD") K4.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
+        else K4.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
         K4.push_back(dummy1);
 
         //correcting new_udata[i][j] to being as it was before
@@ -159,6 +166,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
 
     u_data    = new_udata;
     udot_data = new_udotdata;
+
+    delete cheb;
 }
 
 /////////////////////////
@@ -181,7 +190,7 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double ** data, int 
     std::vector<double> derivative;
 
     derivative.push_back((data[size_t - 1][size_x - 1] - data[size_t - 1][1]) / (2. * space_step));
-
+    
     for (int i = 1; i < size_x-1; i++)
         derivative.push_back((data[size_t-1][i-1] - data[size_t - 1][i+1]) / (2. * space_step));
 
@@ -223,7 +232,6 @@ std::vector<double> WaveSolver::PSecondDerSpaceCenteredDiff2(double **data, int 
     #endif
 
     //see explanation above for this first calculation and the last one
-
     std::vector<double> derivative;
     derivative.push_back((data[size_t - 1][size_x - 1] - 2.*data[size_t - 1][0] + data[size_t-1][1]) / (space_step * space_step));
 
@@ -293,7 +301,10 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
     Matrix m;
     Matrix cheb = m.ChebyshevDN(cheb_x, size_x-1);
     cheb = cheb*cheb; //twice cheb means second derivative
-    return cheb.Mult(data[size_t - 1]);
+    //pseudo spectral is just a matrix multiplication
+
+    std::vector<double> s = cheb.Mult(data[size_t-1]);
+    return s;
 }
 
 ////////////////////////
@@ -573,6 +584,9 @@ void WaveSolver::Ghost(double** udata, double** udotdata, int& size_t, int& size
     udata = newu_data;
     udotdata = newudot_data;
 }
+
+void        WaveSolver::SetMethod(std::string imethod){method = imethod;}
+std::string WaveSolver::GetMethod(){return method;}
 
 
 ////////////////////////

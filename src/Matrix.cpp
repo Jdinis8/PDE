@@ -36,9 +36,11 @@ std::vector<double> Matrix::Mult(double* vec){
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
     std::vector<double> res;
+    double sum(0.);
     for(int i = 0; i < m; i++){
-        res.push_back(0);
-        for(int j = 0; j < n; j++) res[i] += mtx[i][j]*vec[j];
+        sum = 0.;
+        for(int j = 0; j < n; j++) sum += mtx[i][j]*vec[j];
+        res.push_back(sum);
     }
     return res;
 }

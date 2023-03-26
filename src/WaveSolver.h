@@ -5,7 +5,7 @@
 #include <fstream>
 #include "Matrix.h"
 
-//#define DEBUG
+#define DEBUG
 
 class WaveSolver{
     public:
@@ -41,6 +41,10 @@ class WaveSolver{
         //ghost propagator
         void Ghost(double** udata, double** udotdata, int& size_t, int& size_x); //adds amt_ghost points to both sides of the last element of the array udata and udotdata
 
+        //method selector
+        void        SetMethod(std::string imethod);
+        std::string GetMethod();
+
         // Writing stuff to a txt file
         void Write(std::string filename, double **data, int size_t, int size_x, double space_step, double time_step, double x0);
         void Write(std::string filename, std::vector<std::vector<double>> data, int size_t, int size_x, double space_step, double time_step, double x0); //just to write the convergence data
@@ -50,6 +54,7 @@ class WaveSolver{
     private:
         double CFL;
         int amt_ghost;
+        std::string method;
 };
 
 #endif

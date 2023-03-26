@@ -34,6 +34,7 @@ int main(){
     }
 
     wv.TimeWaveRK4(data, dot_data, sizet, N, space_step, time_step);
+
     wv.Write("graphics/output.txt", data, sizet, N, space_step, time_step, x0);
 
     std::vector<std::vector<double>> conv = wv.ConvergenceTest(copydata, copydot_data, sizet, N, space_step, time_step, f, order);
