@@ -12,7 +12,7 @@ class Matrix{
         Matrix(double** imtx, int im, int in);
         Matrix(std::vector<std::vector<double>> imtx);
         Matrix();
-        ~Matrix();
+        ~Matrix() = default;
 
         std::vector<double>              Mult(double* vec);
         std::vector<double>              Mult(std::vector<double> vec);
@@ -20,7 +20,7 @@ class Matrix{
         std::vector<std::vector<double>> Mult(std::vector<std::vector<double>> mtx2);
         
         //chebyshev matrix
-        Matrix ChebyshevDN(double *chebyshevpts, int N);
+        Matrix ChebyshevDN(int N);
         
         //to get info from the matrix
         int GetRowN() const;

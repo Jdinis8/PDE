@@ -75,6 +75,11 @@ py:
 	python3 python/graphicmaker.py
 	python3 python/gifmaker.py
 
+cheb:
+	@echo Preparing some vizz
+	python3 python/cheb.py
+	python3 python/gifmaker.py
+
 convpy:
 	@echo Printing convergence test
 	python3 python/conv.py
@@ -104,5 +109,9 @@ cleanall:
 	@echo Major Cleaning
 	rm -f $(exe) $(obj) $(tilde) $(generated)
 	rm -f $(LIBDIR)/libFT.a
+	rm -f $(pyobj) $(txt)
+	./Cleaner
+
+cleanpy:
 	rm -f $(pyobj) $(txt)
 	./Cleaner

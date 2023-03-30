@@ -23,14 +23,6 @@ Matrix::Matrix(): m(0), n(0){
     #endif
 }
 
-Matrix::~Matrix(){
-    #ifdef DEBUG
-        printf("[%s]\n", __PRETTY_FUNCTION__);
-    #endif
-    for(int i = 0; i < m; i++) delete[] mtx[i];
-    delete[] mtx;
-}
-
 std::vector<double> Matrix::Mult(double* vec){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
@@ -79,10 +71,13 @@ std::vector<std::vector<double>> Matrix::Mult(std::vector<std::vector<double>> m
     return res;
 }
 
-Matrix Matrix::ChebyshevDN(double *chebyshevpts, int N){
+Matrix Matrix::ChebyshevDN(int N){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
+
+    double* chebyshevpts = new double[N];
+    for(int i = 0; i < N; i++) chebyshevpts[i] = cos(i*M_PI/N);
 
     double** mtp = new double*[N+1];
     for (int i = 0; i < N+1; i++) mtp[i] = new double[N+1];
@@ -115,6 +110,7 @@ Matrix Matrix::ChebyshevDN(double *chebyshevpts, int N){
         mtp[N][i] =-2.*pow(-1, N+i)/(1.+chebyshevpts[i]);
     }
 
+    delete[] chebyshevpts;
     return Matrix(mtp, N+1, N+1);
 }
 
@@ -138,9 +134,9 @@ std::vector<double> &Matrix::operator[](int i){
 }
 
 std::vector<double> Matrix::operator[](int i) const{
-    #ifdef DEBUG
-        printf("[%s]\n", __PRETTY_FUNCTION__);
-    #endif
+    //#ifdef DEBUG
+    //    printf("[%s]\n", __PRETTY_FUNCTION__);
+    //#endif
     std::vector<double> vec;
     if(i < 0 || i >= m){
         std::cout << "[WARNING] You are trying to access a row of the matrix which does not exist!!" << std::endl;

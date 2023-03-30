@@ -4,16 +4,8 @@
 
 Interpolator::Interpolator(double *ix, double *iy, int iN): x(ix), y(iy), N(iN){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
-	#endif
-}
-
-Interpolator::~Interpolator(){
-    #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
-	#endif
-    delete[] x;
-    delete[] y;
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 }
 
 ////////////////////
@@ -24,8 +16,8 @@ Interpolator::~Interpolator(){
 
 double Interpolator::Lagrange(double fx){
 	#ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
-	#endif
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 
 	double fy=0;
 	for(int i=0; i<N; i++){
@@ -43,8 +35,8 @@ double Interpolator::Lagrange(double fx){
 
 double Interpolator::LagrangeFirstDerivative(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
-	#endif
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 
     if(N==1) return 0;
 	if(fx == x[0] || fx == x[N-1]){
@@ -57,8 +49,8 @@ double Interpolator::LagrangeFirstDerivative(double fx){
 
 double Interpolator::LagrangeSecondDerivative(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
-	#endif
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
 
     if(N==1) return 0;
 	if(fx == x[0] || fx == x[N-1]){
@@ -77,11 +69,10 @@ double Interpolator::LagrangeSecondDerivative(double fx){
 
 double Interpolator::Newton(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
+        printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
     //setting up coefficientes first
     double* coef = new double[N];
-    
     for(int i=0; i<N; i++) coef[i] = y[i];
 	for(int i=1; i<N; i++){
 		for(int j=i; j<N; j++)
@@ -98,7 +89,7 @@ double Interpolator::Newton(double fx){
 
 double Interpolator::NewtonFirstDerivative(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
+        printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
 
     if(N==1) return 0;
@@ -112,7 +103,7 @@ double Interpolator::NewtonFirstDerivative(double fx){
 
 double Interpolator::NewtonSecondDerivative(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
+        printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
 
     if(N==1) return 0;
@@ -132,7 +123,7 @@ double Interpolator::NewtonSecondDerivative(double fx){
 
 double Interpolator::Neville(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
+        printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
 
 	double* p = new double[N];
@@ -152,7 +143,7 @@ double Interpolator::Neville(double fx){
 
 double Interpolator::NevilleFirstDerivative(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
+        printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
 
     if(N==1) return 0;
@@ -166,7 +157,7 @@ double Interpolator::NevilleFirstDerivative(double fx){
 
 double Interpolator::NevilleSecondDerivative(double fx){
     #ifdef DEBUG
-	  printf("[%s] [x=%f]\n", __PRETTY_FUNCTION__,fx );
+        printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
 
     if(N==1) return 0;
@@ -176,4 +167,22 @@ double Interpolator::NevilleSecondDerivative(double fx){
     }
 
     return (Neville(fx + h) - 2. * Neville(fx) + Neville(fx - h)) / (h * h);
+}
+
+void Interpolator::SetX(double* ix){
+	#ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+	#endif
+	double * dumb = this->x;
+	this->x = ix;
+	delete[] dumb;
+}
+
+void Interpolator::SetY(double* iy){
+	#ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+	#endif
+	double * dumb = this->y;
+	this->y = iy;
+	delete[] dumb;
 }

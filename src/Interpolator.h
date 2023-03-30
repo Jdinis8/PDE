@@ -3,10 +3,12 @@
 
 #include <iostream>
 
+#define DEBUG
+
 class Interpolator{
     public:
         Interpolator(double *ix, double *iy, int iN);
-        ~Interpolator();
+        ~Interpolator() = default;
         
         //Lagrange Interpolator Methods
         double Lagrange(double fx);
@@ -22,6 +24,10 @@ class Interpolator{
         double Neville(double fx);
         double NevilleFirstDerivative(double fx);
         double NevilleSecondDerivative(double fx);
+
+        //Change Data for Interpolation
+        void SetX(double* ix);
+        void SetY(double* iy);
 
     private:
         double* x;

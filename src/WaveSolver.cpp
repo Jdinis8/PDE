@@ -89,7 +89,6 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
     
     double **new_udata    = new double*[size_t + 1];
     double **new_udotdata = new double*[size_t + 1];
-    double *cheb = new double[size_x];
 
     for (int j = 0; j < size_t + 1; j++)
     {
@@ -101,8 +100,6 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         new_udata[0][k] = u_data[0][k];
         new_udotdata[0][k] = udot_data[0][k];
     }
-
-    if(method == "PS") for(int i = 0; i < size_x; i++) cheb[i] = cos(i*M_PI/size_x);
 
     for (int i = 0; i < size_t; i++){
         K1.clear();
@@ -116,9 +113,9 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         for (int j = 0; j < size_x; j++) dummy1.push_back(new_udotdata[i][j]);
         
         if(method == "FD") K1.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
-        else K1.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
+        else if(method == "PS")K1.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else K1.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K1.push_back(dummy1);
-
         
         //we briefly change udata for K2
         for(int j = 0; j < size_x; j++){
@@ -127,7 +124,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         }
 
         if(method == "FD") K2.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
-        else K2.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
+        else if(method == "PS") K2.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else K2.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K2.push_back(dummy1);
 
         //we subtract K1 and add K2 to get u_data+K2
@@ -137,7 +135,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         }
 
         if(method == "FD") K3.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
-        else K3.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
+        else if(method == "PS") K3.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else K3.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K3.push_back(dummy1);
 
         //we do the same, but this time we take care to subtract K2/2 and add K3
@@ -147,7 +146,8 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         }
 
         if(method == "FD") K4.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
-        else K4.push_back(PseudoSpectral(new_udata, i+1, size_x, cheb));
+        else if(method == "PS") K4.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else K4.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K4.push_back(dummy1);
 
         //correcting new_udata[i][j] to being as it was before
@@ -166,8 +166,6 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
 
     u_data    = new_udata;
     udot_data = new_udotdata;
-
-    delete cheb;
 }
 
 /////////////////////////
@@ -294,19 +292,44 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
     return derivative;
 }
 
-std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int size_x, double* cheb_x){
+std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int size_x){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
     Matrix m;
-    Matrix cheb = m.ChebyshevDN(cheb_x, size_x-1);
+    Matrix cheb = m.ChebyshevDN(size_x-1);
     cheb = cheb*cheb; //twice cheb means second derivative
     //pseudo spectral is just a matrix multiplication
-
     std::vector<double> s = cheb.Mult(data[size_t-1]);
     return s;
 }
 
+std::vector<double> WaveSolver::BVPseudoSpectral(double** data, int size_t, int size_x, double initial, double final){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+    Matrix m;
+    Matrix cheb = m.ChebyshevDN(size_x-1);
+    cheb = cheb*cheb;
+
+    data[size_t-1][0]        = initial;
+    data[size_t-1][size_x-1] = final;
+    std::vector<double> s = cheb.Mult(data[size_t-1]);
+    s[0]        = initial;
+    s[size_x-1] = final;
+    return s;
+}
+
+std::vector<double> WaveSolver::PPseudoSpectral(double** data, int size_t, int size_x){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+    Matrix m;
+    Matrix cheb = m.ChebyshevDN(size_x-1);
+    cheb = cheb*cheb;
+    
+    data[size_t-1][0] = data[size_t-1][size_x-1];
+}
 ////////////////////////
 ////////////////////////
 ////////////////////////
@@ -605,14 +628,42 @@ void WaveSolver::Write(std::string filename, double **data, int size_t, int size
     std::ofstream myfile;
     myfile.open(filename.c_str());
 
-    myfile << size_t << " " << size_x << " " << space_step << " " << time_step << " " << x0 << "\n";
+    if(this->GetMethod() == "FD"){
+        myfile << size_t << " " << size_x << " " << space_step << " " << time_step << " " << x0 << "\n";
 
-    for(int i = 0; i < size_t; i++){
-        for(int j = 0; j < size_x; j++)
+        for(int i = 0; i < size_t; i++){
+            for(int j = 0; j < size_x; j++)
+                myfile << data[i][j] << " ";
+            myfile << "\n";
+        }
+    }else{
+        myfile << time_step << "\n";
+        for(int i = 0; i < size_x; i++) myfile << cos(i*M_PI/size_x) << " ";
+        myfile << "\n";
+        for (int i = 0; i < size_t; i++){
+            for (int j = 0; j < size_x; j++) myfile << data[i][j] << " ";
+            myfile << "\n";
+        }
+    }
+
+    myfile.close();
+}
+
+void WaveSolver::Write(std::string filename, double** data, int size_t, int size_x, double time_step, double*x){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+    std::ofstream myfile;
+    myfile.open(filename.c_str());
+    myfile << time_step << "\n";
+    for (int i = 0; i < size_x; i++) myfile << x[i] << " ";
+    myfile << "\n";
+    for (int i = 0; i < size_t; i++)
+    {
+        for (int j = 0; j < size_x; j++)
             myfile << data[i][j] << " ";
         myfile << "\n";
     }
-
     myfile.close();
 }
 

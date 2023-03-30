@@ -3,16 +3,14 @@
 
 int main(){
     double space_length = 1, tf = 2;
-    int N(10);
+    int N(21);
     int Nt(1);
-    int f(2), order(2);
     double space_step = space_length / (double(N));
     double time_step = 0.001 * space_step;
     int sizet = int(tf / time_step);
 
     double **data = new double *[Nt];
     double **dot_data = new double *[Nt];
-    double *cheb = new double[N];
 
     for (int i = 0; i < Nt; i++)
     {
@@ -20,31 +18,31 @@ int main(){
         dot_data[i] = new double[N];
     }
 
+    double x(0.);
+
     for (int j = 0; j < N; j++)
     {
-        data[0][j] = exp(-(cos((j * M_PI) / N)) * (cos((j * M_PI) / N)) / 0.1);
+        x = cos(j * M_PI / (N-1));
+        data[0][j] = cos(x);
         dot_data[0][j] = 0.;
-        cheb[j] = cos((j * M_PI) / N);
     }
 
     WaveSolver wv;
 
-    std::vector<double> FD = wv.PSecondDerSpaceCenteredDiff2(data, 1, N, space_step);
-    std::vector<double> PS = wv.PseudoSpectral(data, 1, N, cheb);
-    std::cout << PS[0] << std::endl;
+    std::vector<double> PS = wv.PseudoSpectral(data, 1, N);
 
-    for(int i = 0; i < int(FD.size()); i++){
-        std::cout << FD[i] << " " << PS[i] << " " << FD[i]-PS[i] << std::endl;
+    for(int j = 0; j < N; j++){
+        x = cos(j*M_PI/(N-1));
+        std::cout << PS[j] << " " << -cos(x) << std::endl;
     }
 
-    for (int i = 0; i < sizet; i++)
+
+    for (int i = 0; i < 1; i++)
     {
         delete[] data[i];
         delete[] dot_data[i];
     }
-
     delete[] data;
     delete[] dot_data;
-    delete[] cheb;
     return 0;
 }
