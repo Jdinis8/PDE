@@ -31,7 +31,8 @@ class WaveSolver{
         //Spectral Method
         std::vector<double> PseudoSpectral  (double **data, int size_t, int size_x);
         std::vector<double> BVPseudoSpectral(double** data, int size_t, int size_x, double initial, double final);
-        std::vector<double> PPseudoSpectral (double** data, int size_t, int size_x);
+        std::vector<double> FFTPseudoSpectral (double** data, int size_t, int size_x);
+
         //Convergence
         std::vector<std::vector<double>> ConvergenceTest(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
         std::vector<double>              L2NormTime(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f);

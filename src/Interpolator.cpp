@@ -173,16 +173,12 @@ void Interpolator::SetX(double* ix){
 	#ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
-	double * dumb = this->x;
-	this->x = ix;
-	delete[] dumb;
+	for(int i = 0; i < N; i++) this->x[i] = ix[i];
 }
 
 void Interpolator::SetY(double* iy){
 	#ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
 	#endif
-	double * dumb = this->y;
-	this->y = iy;
-	delete[] dumb;
+	for(int i = 0; i < N; i++) this->y[i] = iy[i];
 }

@@ -320,15 +320,18 @@ std::vector<double> WaveSolver::BVPseudoSpectral(double** data, int size_t, int 
     return s;
 }
 
-std::vector<double> WaveSolver::PPseudoSpectral(double** data, int size_t, int size_x){
+std::vector<double> WaveSolver::FFTPseudoSpectral(double** data, int size_t, int size_x){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
-    Matrix m;
-    Matrix cheb = m.ChebyshevDN(size_x-1);
-    cheb = cheb*cheb;
-    
-    data[size_t-1][0] = data[size_t-1][size_x-1];
+    std::vector<double> as;
+    double* V = new double[2*size_x-1];
+    for(int i = 0; i < size_x; i++) V[i] = cos(i*M_PI/(size_x-1));
+    for(int i = size_x; i < 2*size_x-1; i++) V[i] = -V[i-size_x+1]; 
+    for(int i = 0; i < 2*size_x-1; i++) std::cout << V[i] << std::endl;
+    delete[] V;
+
+    return as;
 }
 ////////////////////////
 ////////////////////////
@@ -389,7 +392,7 @@ std::vector<std::vector<double>> WaveSolver::ConvergenceTest(double **udata, dou
 
     /* In case you want to print out the different resolutions
     Write("graphics/outputlow.txt", lowu_res, size_t, size_x/(f*f), space_step*f*f, time_step, -M_PI);
-    Write("graphics/outputmedium.txt", mediumu_res, size_t, size_x/f, space_step*f, time_step, -M_PI);
+    Write("4/outputmedium.txt", mediumu_res, size_t, size_x/f, space_step*f, time_step, -M_PI);
     Write("graphics/outputhigh.txt", highu_res, size_t, size_x, space_step, time_step, -M_PI);
     */
 

@@ -24,6 +24,6 @@ for i in imgs:
 #               duration=300, loop=0)
 
 ##video
-clip = ImageSequenceClip(imgs, fps = 10) 
+clip = ImageSequenceClip(imgs, fps = 20) 
 clip.write_videofile(
     "/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/simulation.mp4", fps=24)
