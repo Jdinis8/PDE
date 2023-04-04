@@ -3,7 +3,7 @@
 
 int main(){
     double space_length = 1, tf = 2;
-    int N(21);
+    int N(101);
     int Nt(1);
     double space_step = space_length / (double(N));
     double time_step = 0.001 * space_step;
@@ -29,11 +29,12 @@ int main(){
 
     WaveSolver wv;
 
-    std::vector<double> PS = wv.PseudoSpectral(data, 1, N);
+    //std::vector<double> PS = wv.PseudoSpectral(data, 1, N);
+    std::vector<double> FFT = wv.FFTPseudoSpectral(data, 1, N);
 
     for(int j = 0; j < N; j++){
         x = cos(j*M_PI/(N-1));
-        std::cout << PS[j] << " " << -cos(x) << std::endl;
+        std::cout << FFT[j] << " " << -cos(x) << std::endl;
     }
 
 

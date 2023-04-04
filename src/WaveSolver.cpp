@@ -324,14 +324,153 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(double** data, int size_t, int
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
-    std::vector<double> as;
-    double* V = new double[2*size_x-1];
-    for(int i = 0; i < size_x; i++) V[i] = cos(i*M_PI/(size_x-1));
-    for(int i = size_x; i < 2*size_x-1; i++) V[i] = -V[i-size_x+1]; 
-    for(int i = 0; i < 2*size_x-1; i++) std::cout << V[i] << std::endl;
-    delete[] V;
+    std::vector<double> derivative;
+    double* V = new double[2*size_x-2];
+    double* RFV = new double[2*size_x-2];
+    double* RFVcopy = new double[2*size_x-2];
+    double* IFV = new double[2*size_x-2];
+    double* RW = new double[2*size_x-2];
+    double* IW = new double[2*size_x-2];
+    double* w = new double[size_x];
 
-    return as;
+    for(int i = 0; i < size_x; i++) V[i] = data[size_t-1][i];
+    for(int i = 0; i < size_x-2; i++) V[size_x+i] = V[size_x-1-i]; 
+
+    //calculating fast fourier transform
+    double rsum(0.), isum(0.);
+    for(int k = 0; k < 2*size_x-2; k++){
+        rsum = 0.; isum = 0.;
+        for(int j = 0; j < 2*size_x-2; j++){
+            rsum += M_PI/(size_x-1)*cos((k-size_x+2)*j*M_PI/(size_x-1))*V[j];
+            isum += -M_PI/(size_x-1)*sin((k-size_x+2)*j*M_PI/(size_x-1))*V[j]; //minus sign comes from -iktheta_j
+        }
+        //we multiply by ik and notice that we have to switch the real to imaginary and vice-versa
+        RFVcopy[k] = rsum;
+        RFV[k] = -isum*(k-size_x+1);
+        IFV[k] = rsum*(k-size_x+1);
+    }
+
+
+    RFV[2*size_x-3] = 0.;
+    IFV[2*size_x-3] = 0.;
+
+    //inverse fft now
+    for(int j = 0; j < 2*size_x-2; j++){
+        rsum = 0.; isum = 0.;
+        for(int k = 0; k < 2*size_x-2; k++){
+            rsum += 1/(2*M_PI)*(cos((k-size_x+2)*j*M_PI/(size_x-1))*RFV[k] - sin((k-size_x+2)*j*M_PI/(size_x-1))*IFV[k]);
+            isum += 1/(2*M_PI)*(cos(((k-size_x+2)*j*M_PI/(size_x-1)))*IFV[k] - sin((k-size_x+2)*j*M_PI/(size_x-1))*RFV[k]);
+        }
+        RW[j] = rsum;
+        IW[j] = isum;
+    }
+
+    for(int i = 1; i < size_x-1; i++) w[i] = -RW[i]/(sqrt(1-cos(i*M_PI/(size_x-1))*cos(i*M_PI/(size_x-1))));
+    
+    rsum = 0.; isum = 0.;
+    for(int n = 1; n < size_x-1; n++){
+        rsum += 1/(2*M_PI)*n*n*RFVcopy[n+size_x-2]; //rfvcopy is shifted by size_x-1
+        isum += 1/(2*M_PI)*pow(-1, n+1)*n*n*RFVcopy[n+size_x-2];
+    }
+    rsum += 1/(4*M_PI)*(size_x-1)*(size_x-1)*RFVcopy[2*size_x-3];
+    isum += 1/(4*M_PI)*pow(-1, size_x)*(size_x-1)*(size_x-1)*RFVcopy[2*size_x-3];
+
+    w[0] = rsum;
+    w[size_x-1] = isum;
+
+    for(int i = 0; i < size_x; i++) derivative.push_back(w[i]);
+
+    delete[] V;
+    delete[] RFV;
+    delete[] RFVcopy;
+    delete[] IFV;
+    delete[] RW;
+    delete[] IW;
+    delete[] w;
+
+    return derivative;
+}
+
+std::vector<double> WaveSolver::FFTPseudoSpectral(std::vector<double> data, int size_x){
+    #ifdef DEBUG
+        printf("[%s]\n", __PRETTY_FUNCTION__);
+    #endif
+    std::vector<double> derivative;
+    double *V = new double[2 * size_x - 2];
+    double *RFV = new double[2 * size_x - 2];
+    double *RFVcopy = new double[2 * size_x - 2];
+    double *IFV = new double[2 * size_x - 2];
+    double *RW = new double[2 * size_x - 2];
+    double *IW = new double[2 * size_x - 2];
+    double *w = new double[size_x];
+
+    for (int i = 0; i < size_x; i++)
+        V[i] = data[i];
+    for (int i = 0; i < size_x - 2; i++)
+        V[size_x + i] = V[size_x - 1 - i];
+
+    // calculating fast fourier transform
+    double rsum(0.), isum(0.);
+    for (int k = 0; k < 2 * size_x - 2; k++)
+    {
+        rsum = 0.;
+        isum = 0.;
+        for (int j = 0; j < 2 * size_x - 2; j++)
+        {
+            rsum += M_PI / (size_x - 1) * cos((k - size_x + 2) * j * M_PI / (size_x - 1)) * V[j];
+            isum += -M_PI / (size_x - 1) * sin((k - size_x + 2) * j * M_PI / (size_x - 1)) * V[j]; // minus sign comes from -iktheta_j
+        }
+        // we multiply by ik and notice that we have to switch the real to imaginary and vice-versa
+        RFVcopy[k] = rsum;
+        RFV[k] = -isum * (k - size_x + 1);
+        IFV[k] = rsum * (k - size_x + 1);
+    }
+
+    RFV[2 * size_x - 3] = 0.;
+    IFV[2 * size_x - 3] = 0.;
+
+    // inverse fft now
+    for (int j = 0; j < 2 * size_x - 2; j++)
+    {
+        rsum = 0.;
+        isum = 0.;
+        for (int k = 0; k < 2 * size_x - 2; k++)
+        {
+            rsum += 1 / (2 * M_PI) * (cos((k - size_x + 2) * j * M_PI / (size_x - 1)) * RFV[k] - sin((k - size_x + 2) * j * M_PI / (size_x - 1)) * IFV[k]);
+            isum += 1 / (2 * M_PI) * (cos(((k - size_x + 2) * j * M_PI / (size_x - 1))) * IFV[k] - sin((k - size_x + 2) * j * M_PI / (size_x - 1)) * RFV[k]);
+        }
+        RW[j] = rsum;
+        IW[j] = isum;
+    }
+
+    for (int i = 1; i < size_x - 1; i++)
+        w[i] = -RW[i] / (sqrt(1 - cos(i * M_PI / (size_x - 1)) * cos(i * M_PI / (size_x - 1))));
+
+    rsum = 0.;
+    isum = 0.;
+    for (int n = 1; n < size_x - 1; n++)
+    {
+        rsum += 1 / (2 * M_PI) * n * n * RFVcopy[n + size_x - 2]; // rfvcopy is shifted by size_x-1
+        isum += 1 / (2 * M_PI) * pow(-1, n + 1) * n * n * RFVcopy[n + size_x - 2];
+    }
+    rsum += 1 / (4 * M_PI) * (size_x - 1) * (size_x - 1) * RFVcopy[2 * size_x - 3];
+    isum += 1 / (4 * M_PI) * pow(-1, size_x) * (size_x - 1) * (size_x - 1) * RFVcopy[2 * size_x - 3];
+
+    w[0] = rsum;
+    w[size_x - 1] = isum;
+
+    for (int i = 0; i < size_x; i++)
+        derivative.push_back(w[i]);
+
+    delete[] V;
+    delete[] RFV;
+    delete[] RFVcopy;
+    delete[] IFV;
+    delete[] RW;
+    delete[] IW;
+    delete[] w;
+
+    return derivative;
 }
 ////////////////////////
 ////////////////////////
