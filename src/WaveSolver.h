@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include "Matrix.h"
+#include "Functions.h"
 
 class WaveSolver{
     public:
@@ -35,7 +36,7 @@ class WaveSolver{
         std::vector<double> FFTPseudoSpectral(std::vector<double> data, int size_x);
 
         //Convergence
-        std::vector<std::vector<double>> ConvergenceTest(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
+        std::vector<std::vector<double>> PointConvergenceTest(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
         std::vector<double>              L2NormTime(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f);
         double                           L2NormStep(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
 

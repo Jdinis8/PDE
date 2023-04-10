@@ -35,6 +35,16 @@ with open(filename) as f:
         ctr += 1
       evolution.append(dumb)
 
+maxvalue = evolution[0][0]
+minvalue = evolution[0][0]
+
+for i in range(len(evolution)):
+  for j in range(len(evolution[i])):
+    if(evolution[i][j] > maxvalue):
+      maxvalue = evolution[i][j]
+    if(evolution[i][j] < minvalue):
+      minvalue = evolution[i][j]
+
 #now we have everything from the output.txt stored
 fctr = 0
 for i in range(len(evolution)):
@@ -43,7 +53,7 @@ for i in range(len(evolution)):
     plt.xlabel('Space (x)')
     plt.ylabel('Value (u(x,t))')
     plt.xlim([min(xl), max(xl)])
-    plt.ylim([-1, 1])
+    plt.ylim([minvalue, maxvalue])
     plt.title(f"Time (t=" + "{0:.5f}".format(i*time_step, 5) + "s)")
     plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi = my_dpi)
     plt.close()

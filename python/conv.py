@@ -45,12 +45,23 @@ x = []
 for i in range(size_x):
   x.append(x0 + i*space_step)
 
+maxvalue = tot[0][0]
+minvalue = tot[0][0]
+
+for i in range(len(tot)):
+  for j in range(len(tot[i])):
+    if(tot[i][j] > maxvalue):
+      maxvalue = tot[i][j]
+    if(tot[i][j] < minvalue):
+      minvalue = tot[i][j]
+
+
 plt.plot(x, tot[0], marker="o", c="hotpink", linewidth = 1, markersize = 4, label = r'$f^p(u_h - u_{fh})$')
 plt.plot(x, tot[1], marker="o", c="#88c999", linewidth = 1, markersize = 4, label = r'$u_{fh} - u_{f^2h}$')
 plt.xlabel('Space (x)')
 plt.xlim([x0, x0 + size_x*space_step])
-plt.ylim([min(min(tot))-0.1*abs(min(min(tot))),
-          max(max(tot))+0.1*abs(max(max(tot)))])
+plt.ylim([minvalue-0.1*abs(minvalue),
+          maxvalue+0.1*abs(maxvalue)])
 plt.title(f"Time (t=" + "{0:.5f}".format(size_t*time_step, 5) + "s)")
 plt.legend()
 plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/convergencetest_time_' +

@@ -194,6 +194,7 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double ** data, int 
 
     derivative.push_back((data[size_t - 1][size_x - 2] - data[size_t - 1][0]) / (2. * space_step));
 
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
     return derivative;
 }
 
@@ -220,7 +221,8 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff4(double **data, int s
     //for size_x-2 step
     derivative.push_back((-data[size_t - 1][0] + 8. * data[size_t - 1][size_x-1] - 8. * data[size_t - 1][size_x-3] + data[size_t - 1][size_x-4]) / (12. * space_step));
     derivative.push_back((-data[size_t - 1][1] + 8. * data[size_t - 1][0] - 8. * data[size_t - 1][size_x-2] + data[size_t - 1][size_x-3]) / (12. * space_step));
-
+    
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
     return derivative;
 }
 
@@ -237,7 +239,8 @@ std::vector<double> WaveSolver::PSecondDerSpaceCenteredDiff2(double **data, int 
         derivative.push_back((data[size_t - 1][i-1] - 2. * data[size_t - 1][i] + data[size_t - 1][i+1]) / (space_step * space_step));
 
     derivative.push_back((data[size_t - 1][size_x - 2] - 2. * data[size_t - 1][size_x-1] + data[size_t - 1][0]) / (space_step * space_step));
-
+    
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
     return derivative;
 }
 
@@ -264,6 +267,7 @@ std::vector<double> WaveSolver::FirstDerSpaceCenteredDiff2(double **data, int si
     //backward: 3*now - 4*before + beforebefore
     derivative.push_back((3*data[size_t - 1][size_x - 1] - 4*data[size_t - 1][size_x-2] + data[size_t-1][size_x-3]) / (2. * space_step));
 
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
     return derivative;
 }
 
@@ -289,6 +293,7 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
     //backward
     derivative.push_back((2.*data[size_t - 1][size_x - 1] - 5. * data[size_t - 1][size_x - 2] + 4.*data[size_t - 1][size_x-3] - data[size_t-1][size_x-4]) / ( space_step * space_step * space_step));
 
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
     return derivative;
 }
 
@@ -301,6 +306,7 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
     cheb = cheb*cheb; //twice cheb means second derivative
     //pseudo spectral is just a matrix multiplication
     std::vector<double> s = cheb.Mult(data[size_t-1]);
+    for(int i = 0; i < size_x; i++) s[i] += f(size_x*i, 0);
     return s;
 }
 
@@ -317,6 +323,7 @@ std::vector<double> WaveSolver::BVPseudoSpectral(double** data, int size_t, int 
     std::vector<double> s = cheb.Mult(data[size_t-1]);
     s[0]        = initial;
     s[size_x-1] = final;
+    for(int i = 0; i < int(s.size()); i++) s[i] += f(size_x*i, 0);
     return s;
 }
 
@@ -379,7 +386,8 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(double** data, int size_t, int
     w[size_x-1] = isum;
 
     for(int i = 0; i < size_x; i++) derivative.push_back(w[i]);
-
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+    
     delete[] V;
     delete[] RFV;
     delete[] RFVcopy;
@@ -459,8 +467,8 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(std::vector<double> data, int 
     w[0] = rsum;
     w[size_x - 1] = isum;
 
-    for (int i = 0; i < size_x; i++)
-        derivative.push_back(w[i]);
+    for (int i = 0; i < size_x; i++) derivative.push_back(w[i]);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
 
     delete[] V;
     delete[] RFV;
@@ -480,7 +488,7 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(std::vector<double> data, int 
 ////////////////////////
 ////////////////////////
 
-std::vector<std::vector<double>> WaveSolver::ConvergenceTest(double **udata, double** udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order){
+std::vector<std::vector<double>> WaveSolver::PointConvergenceTest(double **udata, double** udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order){
     #ifdef DEBUG
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
@@ -685,7 +693,7 @@ std::vector<double> WaveSolver::L2NormTime(double **udata, double **udotdata, in
             fdif += (mediumu_res[i][f*j]-lowu_res[i][j])*(mediumu_res[i][f*j]-lowu_res[i][j]) + (mediumudot_res[i][f*j]-lowudot_res[i][j])*(mediumudot_res[i][f*j]-lowudot_res[i][j]);
             sdif += (mediumu_res[i][f*j] - highu_res[i][f*f*j]) * (mediumu_res[i][f*j] - highu_res[i][f*f*j]) + (mediumudot_res[i][f*j] - highudot_res[i][f*f*j])*(mediumudot_res[i][f*j] - highudot_res[i][f*f*j]);
         }
-        l2.push_back(log(sqrt(fdif)/ (sqrt(sdif) + 1e-6)) / log(2));
+        l2.push_back(log(sqrt(fdif)/ (sqrt(sdif) + 1e-6)) / log(f));
         fdif = 0.;
         sdif = 0.;
     }
