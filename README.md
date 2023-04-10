@@ -24,6 +24,8 @@ For the pseudospectral methods, do the following:
 
 Two important things: The file you want to run must be on the folder called _main_ and, assuming the name of the file is for example __test.cpp__, when calling make, you should type only __make test.exe__.
 
+If you want to calculate the evolution of the convergence in spatial steps, do the same for the __stepconv.cpp__.
+
 ## How to Clean
 
 The object files (_.o_) are eliminated automatically from the moment you have the executables (_.exe_) running. To erase these, just type
