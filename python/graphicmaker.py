@@ -8,7 +8,7 @@ from mpl_toolkits import mplot3d
 
 my_dpi = 200
 
-filename = '/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/output.txt'
+filename = os.getcwd() + '/graphics/output.txt'
 
 ctr = 0
 
@@ -54,6 +54,6 @@ for i in range(size_t):
     plt.xlim([x0, x0 + size_x*space_step])
     plt.ylim([min(min(evolution)), max(max(evolution))])
     plt.title(f"Time (t=" + "{0:.5f}".format(i*time_step, 5) + "s)")
-    plt.savefig('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi = my_dpi)
+    plt.savefig(os.getcwd() + '/graphics/time_' + "{0:.5f}".format(i*time_step, 5) + '.png', dpi=my_dpi)
     plt.close()
   fctr = fctr +1

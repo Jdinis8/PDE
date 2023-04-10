@@ -1,11 +1,12 @@
 from PIL import Image
 from moviepy.editor import *
 import glob
+import os
 
 # Create the frames
 frames = []
 imgs = glob.glob(
-    "/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/*.png")
+    os.getcwd() + "/graphics/*.png")
 
 
 #sorting :=)
@@ -18,7 +19,7 @@ for i in imgs:
  
 
 ##GIF
-#frames[0].save('/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/simulation.gif', format='GIF',
+#frames[0].save(os.getcwd() + '/graphics/simulation.gif', format='GIF',
 #               append_images=frames[1:],
 #               save_all=True,
 #               duration=300, loop=0)
@@ -26,4 +27,4 @@ for i in imgs:
 ##video
 clip = ImageSequenceClip(imgs, fps = 20) 
 clip.write_videofile(
-    "/home/machado/Desktop/IST/4ano_2semestre/TAFC/code/graphics/simulation.mp4", fps=24)
+    os.getcwd() + "/graphics/simulation.mp4", fps=24)
