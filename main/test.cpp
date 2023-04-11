@@ -3,7 +3,7 @@
 
 int main(){
     double space_length = 1, tf = 2;
-    int N(101);
+    int N(20);
     int Nt(1);
     double space_step = space_length / (double(N));
     double time_step = 0.001 * space_step;
@@ -23,7 +23,7 @@ int main(){
     for (int j = 0; j < N; j++)
     {
         x = cos(j * M_PI / (N-1));
-        data[0][j] = cos(x);
+        data[0][j] = exp(x)*sin(5*x);
         dot_data[0][j] = 0.;
     }
 
@@ -34,7 +34,7 @@ int main(){
 
     for(int j = 0; j < N; j++){
         x = cos(j*M_PI/(N-1));
-        std::cout << FFT[j] << " " << -cos(x) << std::endl;
+        std::cout << FFT[j] - exp(x)*(sin(5*x)+5*cos(5*x)) << std::endl;
     }
 
 

@@ -114,6 +114,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         
         if(method == "FD") K1.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
         else if(method == "PS")K1.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else if(method == "FFTPS") K1.push_back(FFTPseudoSpectral(new_udata, i+1, size_x));
         else K1.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K1.push_back(dummy1);
         
@@ -125,6 +126,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
 
         if(method == "FD") K2.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
         else if(method == "PS") K2.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else if(method == "FFTPS") K2.push_back(FFTPseudoSpectral(new_udata, i+1, size_x));
         else K2.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K2.push_back(dummy1);
 
@@ -136,6 +138,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
 
         if(method == "FD") K3.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
         else if(method == "PS") K3.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else if(method == "FFTPS") K3.push_back(FFTPseudoSpectral(new_udata, i+1, size_x));
         else K3.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K3.push_back(dummy1);
 
@@ -147,6 +150,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
 
         if(method == "FD") K4.push_back(PSecondDerSpaceCenteredDiff2(new_udata, i+1, size_x, space_step));
         else if(method == "PS") K4.push_back(PseudoSpectral(new_udata, i+1, size_x));
+        else if(method == "FFTPS") K4.push_back(FFTPseudoSpectral(new_udata, i+1, size_x));
         else K4.push_back(BVPseudoSpectral(new_udata, i+1, size_x, 0, 0));
         K4.push_back(dummy1);
 
@@ -332,41 +336,41 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(double** data, int size_t, int
         printf("[%s]\n", __PRETTY_FUNCTION__);
     #endif
     std::vector<double> derivative;
-    double* V = new double[2*size_x-2];
-    double* RFV = new double[2*size_x-2];
+    double* V       = new double[2*size_x-2];
+    double* RFV     = new double[2*size_x-2];
     double* RFVcopy = new double[2*size_x-2];
-    double* IFV = new double[2*size_x-2];
-    double* RW = new double[2*size_x-2];
-    double* IW = new double[2*size_x-2];
-    double* w = new double[size_x];
+    double* IFV     = new double[2*size_x-2];
+    double* RW      = new double[2*size_x-2];
+    double* IW      = new double[2*size_x-2];
+    double* w       = new double[size_x];
 
-    for(int i = 0; i < size_x; i++) V[i] = data[size_t-1][i];
-    for(int i = 0; i < size_x-2; i++) V[size_x+i] = V[size_x-1-i]; 
+    for(int i = 0; i < size_x; i++)   V[i]        = data[size_t-1][i];
+    for(int i = 0; i < size_x-1; i++) V[size_x+i] = V[size_x-1-i]; 
 
     //calculating fast fourier transform
     double rsum(0.), isum(0.);
-    for(int k = 0; k < 2*size_x-2; k++){
+    for(int k = 0; k < 2*size_x-1; k++){
         rsum = 0.; isum = 0.;
-        for(int j = 0; j < 2*size_x-2; j++){
+        for(int j = 1; j < 2*size_x-1; j++){
             rsum += M_PI/(size_x-1)*cos((k-size_x+2)*j*M_PI/(size_x-1))*V[j];
             isum += -M_PI/(size_x-1)*sin((k-size_x+2)*j*M_PI/(size_x-1))*V[j]; //minus sign comes from -iktheta_j
         }
         //we multiply by ik and notice that we have to switch the real to imaginary and vice-versa
         RFVcopy[k] = rsum;
-        RFV[k] = -isum*(k-size_x+1);
-        IFV[k] = rsum*(k-size_x+1);
+        RFV[k] = -isum*(k-size_x+2);
+        IFV[k] = rsum*(k-size_x+2);
     }
 
 
-    RFV[2*size_x-3] = 0.;
-    IFV[2*size_x-3] = 0.;
+    RFV[2*size_x-2] = 0.;
+    IFV[2*size_x-2] = 0.;
 
     //inverse fft now
-    for(int j = 0; j < 2*size_x-2; j++){
+    for(int j = 1; j < 2*size_x-1; j++){
         rsum = 0.; isum = 0.;
-        for(int k = 0; k < 2*size_x-2; k++){
+        for(int k = 0; k < 2*size_x-1; k++){
             rsum += 1/(2*M_PI)*(cos((k-size_x+2)*j*M_PI/(size_x-1))*RFV[k] - sin((k-size_x+2)*j*M_PI/(size_x-1))*IFV[k]);
-            isum += 1/(2*M_PI)*(cos(((k-size_x+2)*j*M_PI/(size_x-1)))*IFV[k] - sin((k-size_x+2)*j*M_PI/(size_x-1))*RFV[k]);
+            isum += 1/(2*M_PI)*(cos(((k-size_x+2)*j*M_PI/(size_x-1)))*IFV[k] + sin((k-size_x+2)*j*M_PI/(size_x-1))*RFV[k]);
         }
         RW[j] = rsum;
         IW[j] = isum;

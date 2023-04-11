@@ -24,7 +24,9 @@ For the pseudospectral methods, do the following:
 
 Two important things: The file you want to run must be on the folder called _main_ and, assuming the name of the file is for example __test.cpp__, when calling make, you should type only __make test.exe__.
 
-If you want to calculate the evolution of the convergence in spatial steps, do the same for the __stepconv.cpp__.
+## Change Inhomogeneous Function
+
+In the __src__ folder, you have the _Functions.cpp_ file where there is the function _f_ and this is the one which works as a source for the wave equation. Work the previous steps to rerun with this source function.
 
 ## How to Clean
 
