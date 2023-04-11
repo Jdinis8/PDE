@@ -20,7 +20,7 @@ You can open the Makefile to inspect what it has there, but the simple steps to 
 In order to run the specific codes, important for this project. To run the wave-equation solver with finite-difference approximation for the spatial derivatives, you should do the following steps:
 * ```make fd.exe && ./bin/fd.exe && make py && make conv.py```
 For the pseudospectral methods, do the following:
-* ```make ps.exe && ./bin/ps.exe && make cheb```
+* ```make cheb.exe && ./bin/cheb.exe && make cheb```
 
 Two important things: The file you want to run must be on the folder called _main_ and, assuming the name of the file is for example __test.cpp__, when calling make, you should type only __make test.exe__.
 
