@@ -1,7 +1,7 @@
 #include "Functions.h"
 
 double f(double x, double t){
-    return 0.;
+    return 4*cos(x);
 } //this is the source function in the wave equation
 
 double initialf(double x){
