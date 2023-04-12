@@ -245,7 +245,7 @@ std::vector<double> WaveSolver::PSecondDerSpaceCenteredDiff2(double **data, int 
 
     derivative.push_back((data[size_t - 1][size_x - 2] - 2. * data[size_t - 1][size_x-1] + data[size_t - 1][0]) / (space_step * space_step));
 
-    diss = KreissOliger(data, size_t, size_x, 1, space_step);
+    diss = KreissOliger(data, size_t, size_x, 0.01, space_step);
     for(int i = 0; i < size_x; i++) derivative[i] += f(space_step*i, 0) - diss[i];
     //for(int i = 0; i < size_x; i++) derivative[i] += pow(data[size_t - 1][i],3);
     return derivative;
