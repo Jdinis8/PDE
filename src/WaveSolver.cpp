@@ -198,7 +198,7 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double ** data, int 
 
     derivative.push_back((data[size_t - 1][size_x - 2] - data[size_t - 1][0]) / (2. * space_step));
 
-    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(space_step*i, 0);
     return derivative;
 }
 
@@ -226,7 +226,7 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff4(double **data, int s
     derivative.push_back((-data[size_t - 1][0] + 8. * data[size_t - 1][size_x-1] - 8. * data[size_t - 1][size_x-3] + data[size_t - 1][size_x-4]) / (12. * space_step));
     derivative.push_back((-data[size_t - 1][1] + 8. * data[size_t - 1][0] - 8. * data[size_t - 1][size_x-2] + data[size_t - 1][size_x-3]) / (12. * space_step));
     
-    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(space_step*i, 0);
     return derivative;
 }
 
@@ -236,15 +236,17 @@ std::vector<double> WaveSolver::PSecondDerSpaceCenteredDiff2(double **data, int 
     #endif
 
     //see explanation above for this first calculation and the last one
-    std::vector<double> derivative;
+    std::vector<double> derivative, diss;
+
     derivative.push_back((data[size_t - 1][size_x - 1] - 2.*data[size_t - 1][0] + data[size_t-1][1]) / (space_step * space_step));
 
     for (int i = 1; i < size_x-1; i++)
         derivative.push_back((data[size_t - 1][i-1] - 2. * data[size_t - 1][i] + data[size_t - 1][i+1]) / (space_step * space_step));
 
     derivative.push_back((data[size_t - 1][size_x - 2] - 2. * data[size_t - 1][size_x-1] + data[size_t - 1][0]) / (space_step * space_step));
-    
-    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+
+    diss = KreissOliger(data, size_t, size_x, 1, space_step);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(space_step*i, 0) - diss[i];
     //for(int i = 0; i < size_x; i++) derivative[i] += pow(data[size_t - 1][i],3);
     return derivative;
 }
@@ -272,7 +274,7 @@ std::vector<double> WaveSolver::FirstDerSpaceCenteredDiff2(double **data, int si
     //backward: 3*now - 4*before + beforebefore
     derivative.push_back((3*data[size_t - 1][size_x - 1] - 4*data[size_t - 1][size_x-2] + data[size_t-1][size_x-3]) / (2. * space_step));
 
-    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(space_step*i, 0);
     return derivative;
 }
 
@@ -298,7 +300,7 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
     //backward
     derivative.push_back((2.*data[size_t - 1][size_x - 1] - 5. * data[size_t - 1][size_x - 2] + 4.*data[size_t - 1][size_x-3] - data[size_t-1][size_x-4]) / ( space_step * space_step * space_step));
 
-    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(space_step*i, 0);
     return derivative;
 }
 
@@ -311,7 +313,7 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
     cheb = cheb*cheb; //twice cheb means second derivative
     //pseudo spectral is just a matrix multiplication
     std::vector<double> s = cheb.Mult(data[size_t-1]);
-    for(int i = 0; i < size_x; i++) s[i] += f(size_x*i, 0);
+    for(int i = 0; i < size_x; i++) s[i] += f(cos(M_PI*i/(size_x-1)), 0);
     return s;
 }
 
@@ -328,7 +330,7 @@ std::vector<double> WaveSolver::BVPseudoSpectral(double** data, int size_t, int 
     std::vector<double> s = cheb.Mult(data[size_t-1]);
     s[0]        = initial;
     s[size_x-1] = final;
-    for(int i = 0; i < int(s.size()); i++) s[i] += f(size_x*i, 0);
+    for(int i = 0; i < int(s.size()); i++) s[i] += f(cos(M_PI*i/(size_x-1)), 0);
     return s;
 }
 
@@ -391,7 +393,7 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(double** data, int size_t, int
     w[size_x-1] = isum;
 
     for(int i = 0; i < size_x; i++) derivative.push_back(w[i]);
-    for(int i = 0; i < size_x; i++) derivative[i] += f(size_x*i, 0);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(cos(M_PI*i/(size_x-1)), 0);
     
     delete[] V;
     delete[] RFV;
@@ -485,6 +487,31 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(std::vector<double> data, int 
 
     return derivative;
 }
+
+////////////////////////
+////////////////////////
+////////////////////////
+///////DISSIPATION//////
+////////////////////////
+////////////////////////
+////////////////////////
+
+std::vector<double> WaveSolver::KreissOliger(double** data, int size_t, int size_x, double sigma, double space_step){
+    std::vector<double> diss;
+    double* der = new double[size_x];
+
+    der[0] = (data[size_t-1][2] - 4*data[size_t-1][1] + 6*data[size_t-1][0] - 4*data[size_t-1][size_x-1] + data[size_t-1][size_x-2]) / (space_step * space_step * space_step * space_step);
+    der[1] = (data[size_t-1][3] - 4*data[size_t-1][2] + 6*data[size_t-1][1] - 4*data[size_t-1][0] + data[size_t-1][size_x-1]) / (space_step * space_step * space_step * space_step);
+    for(int i = 2; i < size_x-2; i++) der[i] = (data[size_t-1][i+2] - 4*data[size_t-1][i+1] + 6*data[size_t-1][i] - 4*data[size_t-1][i-1] + data[size_t-1][i-2]) / (space_step * space_step * space_step * space_step);
+    der[size_x-2] = (data[size_t-1][0] - 4*data[size_t-1][size_x-1] + 6*data[size_t-1][size_x-2] - 4*data[size_t-1][size_x-3] + data[size_t-1][size_x-4]) / (space_step * space_step * space_step * space_step);
+    der[size_x-1] = (data[size_t-1][1] - 4*data[size_t-1][0] + 6*data[size_t-1][size_x-1] - 4*data[size_t-1][size_x-2] + data[size_t-1][size_x-3]) / (space_step * space_step * space_step * space_step);
+
+    for (int i = 0; i < size_x; i++) diss.push_back(sigma * der[i] * 0.0625 * space_step * space_step * space_step);
+    delete[] der;
+
+    return diss;
+}
+
 ////////////////////////
 ////////////////////////
 ////////////////////////
@@ -765,7 +792,6 @@ void WaveSolver::Ghost(double** udata, double** udotdata, int& size_t, int& size
 
 void        WaveSolver::SetMethod(std::string imethod){method = imethod;}
 std::string WaveSolver::GetMethod(){return method;}
-
 
 ////////////////////////
 ////////////////////////

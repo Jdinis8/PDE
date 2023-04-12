@@ -40,6 +40,9 @@ class WaveSolver{
         std::vector<double>              L2NormTime(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f);
         double                           L2NormStep(double **udata, double **udotdata, int size_t, int size_x, double space_step, double time_step, int f, int order);
 
+        //Artificial Dissipation
+        std::vector<double> KreissOliger         (double **data, int size_t, int size_x, double sigma, double space_step);
+
         //ghost propagator
         void Ghost(double** udata, double** udotdata, int& size_t, int& size_x); //adds amt_ghost points to both sides of the last element of the array udata and udotdata
 
