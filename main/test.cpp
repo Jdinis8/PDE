@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "WaveSolver.h"
+#include <iomanip>
+#include <limits>
 
 int main(){
     double space_length = 1, tf = 2;
@@ -8,6 +10,9 @@ int main(){
     double space_step = space_length / (double(N));
     double time_step = 0.001 * space_step;
     int sizet = int(tf / time_step);
+    constexpr auto max_precision{std::numeric_limits<long double>::digits10 + 1};
+
+    std::cout << std::setprecision(max_precision);
 
     double **data = new double *[Nt];
     double **dot_data = new double *[Nt];
@@ -34,7 +39,7 @@ int main(){
 
     for(int j = 0; j < N; j++){
         x = cos(j*M_PI/(N-1));
-        std::cout << FFT[j] - exp(x)*(sin(5*x)+5*cos(5*x)) << std::endl;
+        std::cout << cos(j*M_PI/(N-1)) << " " << FFT[j] << " " << exp(x) * (sin(5 * x) + 5 * cos(5 * x)) << " " << FFT[j] - exp(x) * (sin(5 * x) + 5 * cos(5 * x))  << std::endl;
     }
 
 
