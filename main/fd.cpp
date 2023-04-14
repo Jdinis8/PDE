@@ -4,7 +4,7 @@
 int main(){
 
     int N(200), Nt(1), f(2), order(2);
-    double space_length(2.), x0(-1.), tf(3);
+    double space_length(2.), x0(-1.), tf(2);
     double space_step = space_length/(double(N));
     double time_step  = 0.005*space_step;
     int sizet = int(tf/time_step);

@@ -164,7 +164,7 @@ void WaveSolver::TimeWaveRK4(double**& u_data, double**& udot_data, int size_t, 
         diss2 = KreissOliger(new_udotdata, i+1, size_x, 0, space_step);
         for(int j = 0; j < size_x; j++){
             new_udotdata[i+1][j] = new_udotdata[i][j] + time_step/6.*(K1[0][j] + 2.*K2[0][j] + 2.*K3[0][j] + K4[0][j]) - diss2[j];
-               new_udata[i+1][j] = new_udata[i][j] + time_step/6.*(K1[1][j] + 2.*K2[1][j] + 2.*K3[1][j] + K4[1][j]) + f(j*space_step, i+1) - diss1[j];
+               new_udata[i+1][j] = new_udata[i][j] + time_step/6.*(K1[1][j] + 2.*K2[1][j] + 2.*K3[1][j] + K4[1][j]) - diss1[j];
         }
     }
 
@@ -201,6 +201,8 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff2(double ** data, int 
 
     derivative.push_back((data[size_t - 1][size_x - 2] - data[size_t - 1][0]) / (2. * space_step));
 
+    for(int i = 0; i < size_x; i++) derivative[i] += f(i*space_step, size_t);
+
     return derivative;
 }
 
@@ -228,6 +230,8 @@ std::vector<double> WaveSolver::PFirstDerSpaceCenteredDiff4(double **data, int s
     derivative.push_back((-data[size_t - 1][0] + 8. * data[size_t - 1][size_x-1] - 8. * data[size_t - 1][size_x-3] + data[size_t - 1][size_x-4]) / (12. * space_step));
     derivative.push_back((-data[size_t - 1][1] + 8. * data[size_t - 1][0] - 8. * data[size_t - 1][size_x-2] + data[size_t - 1][size_x-3]) / (12. * space_step));
     
+    for(int i = 0; i < size_x; i++) derivative[i] += f(i*space_step, size_t);
+
     return derivative;
 }
 
@@ -245,6 +249,8 @@ std::vector<double> WaveSolver::PSecondDerSpaceCenteredDiff2(double **data, int 
         derivative.push_back((data[size_t - 1][i-1] - 2. * data[size_t - 1][i] + data[size_t - 1][i+1]) / (space_step * space_step));
 
     derivative.push_back((data[size_t - 1][size_x - 2] - 2. * data[size_t - 1][size_x-1] + data[size_t - 1][0]) / (space_step * space_step));
+
+    for(int i = 0; i < size_x; i++) derivative[i] += f(i*space_step, size_t);
 
     return derivative;
 }
@@ -272,6 +278,8 @@ std::vector<double> WaveSolver::FirstDerSpaceCenteredDiff2(double **data, int si
     //backward: 3*now - 4*before + beforebefore
     derivative.push_back((3*data[size_t - 1][size_x - 1] - 4*data[size_t - 1][size_x-2] + data[size_t-1][size_x-3]) / (2. * space_step));
 
+    for(int i = 0; i < size_x; i++) derivative[i] += f(i*space_step, size_t);
+
     return derivative;
 }
 
@@ -296,6 +304,8 @@ std::vector<double> WaveSolver::SecondDerSpaceCenteredDiff2(double **data, int s
 
     //backward
     derivative.push_back((2.*data[size_t - 1][size_x - 1] - 5. * data[size_t - 1][size_x - 2] + 4.*data[size_t - 1][size_x-3] - data[size_t-1][size_x-4]) / ( space_step * space_step * space_step));
+    
+    for(int i = 0; i < size_x; i++) derivative[i] += f(i*space_step, size_t);
 
     return derivative;
 }
@@ -309,6 +319,7 @@ std::vector<double> WaveSolver::PseudoSpectral(double **data, int size_t, int si
     cheb = cheb*cheb; //twice cheb means second derivative
     //pseudo spectral is just a matrix multiplication
     std::vector<double> s = cheb.Mult(data[size_t-1]);
+    for(int i = 1; i < size_x-1; i++) s[i] += f(cos(i*M_PI/(size_x-1)), 0.);
     return s;
 }
 
@@ -325,6 +336,7 @@ std::vector<double> WaveSolver::BVPseudoSpectral(double** data, int size_t, int 
     std::vector<double> s = cheb.Mult(data[size_t-1]);
     s[0]        = initial;
     s[size_x-1] = final;
+    for(int i = 1; i < size_x-1; i++) s[i] += f(cos(i*M_PI/(size_x-1)), 0.);
     return s;
 }
 
@@ -387,7 +399,8 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(double** data, int size_t, int
     w[size_x-1] = isum;
 
     for(int i = 0; i < size_x; i++) derivative.push_back(w[i]);
-    
+    for(int i = 0; i < size_x; i++) derivative[i] += f(cos(i*M_PI/(size_x-1)), 0.);
+
     delete[] V;
     delete[] RFV;
     delete[] RFVcopy;
@@ -468,6 +481,7 @@ std::vector<double> WaveSolver::FFTPseudoSpectral(std::vector<double> data, int 
     w[size_x - 1] = isum;
 
     for (int i = 0; i < size_x; i++) derivative.push_back(w[i]);
+    for(int i = 0; i < size_x; i++) derivative[i] += f(cos(i*M_PI/(size_x-1)), 0.);
 
     delete[] V;
     delete[] RFV;
